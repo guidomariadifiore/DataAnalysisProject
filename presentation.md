@@ -15,7 +15,7 @@
 ## Slide 2: Project Workflow (The 7 Guideline Steps)
 1. **Description of the Dataset:** Origin, physical sensors, 36,733 hourly observations, train/test protocol.
 2. **Data Cleaning:** Missing values check, physical consistency verification, $\sigma$-clipping, standardization.
-3. **Exploratory Data Analysis:** Summary stats, distributions, correlation matrices, ambient effects.
+3. **Exploratory Data Analysis:** Course definition, size & spread synthesis, correlation structure, PCA exploration.
 4. **Main Analysis & Methodology:** Dimensionality reduction (PCA), linear regression, diagnostic tests.
 5. **Preview of Results:** High-level summary of model performance and emission trade-offs.
 6. **Detailed Results:** R², RMSE, residual analysis, out-of-sample test evaluation.
@@ -64,3 +64,27 @@
 * **Training Set (2011–2013):** 22,187 instances (60.4%).
 * **Test Holdout Set (2014–2015):** 14,539 instances (39.6%).
 * **Standardization:** $z = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}}$ computed strictly on the training set to prevent data leakage.
+
+---
+
+## Slide 5: 3. Exploratory Analysis: Distributions & Correlation Structure
+### Course Definition & Statistical Synthesis (Slides 3, 10–18, 64)
+* **Definition:** Unsupervised synthesis of empirical distributions into **Size / Center** ($\mu, Q_2$) and **Spread / Dispersion** ($\sigma^2, \text{IQR}, G$).
+* **Size vs. Spread Findings:**
+  * `CO` mean ($2.21$) exceeds its median ($1.52$) by ~45%, accompanied by a high Gini coefficient ($G = 0.442$), revealing strong right-skewness and episodic emission spikes during off-design loads.
+  * Turbine operating parameters (`TIT`, `TAT`, `CDP`) exhibit tight symmetric distributions concentrated around nominal baseload.
+* **Multivariate Pearson Correlation ($r_{XY}$):**
+  * **Thermodynamic Coupling:** $\text{CDP} \leftrightarrow \text{TEY}$ ($r = 0.99$), $\text{GTEP} \leftrightarrow \text{TEY}$ ($r = 0.98$), $\text{TIT} \leftrightarrow \text{TEY}$ ($r = 0.89$) indicate strong mutual collinearity.
+  * **Atmospheric Density Penalty:** $\text{AT} \leftrightarrow \text{TEY}$ ($r = -0.58$) and $\text{AT} \leftrightarrow \text{CDP}$ ($r = -0.51$) confirm that higher ambient temperatures decrease intake air density, reducing net energy output.
+  * **Combustion Trade-off:** $\text{CO} \leftrightarrow \text{NO}_x$ ($r = -0.37$) illustrates the physical trade-off between complete fuel oxidation and thermal $\text{NO}_x$ generation.
+
+---
+
+## Slide 6: 3. Exploratory Analysis: PCA Dimensionality Reduction & Biplot
+### PCA as an Exploratory Technique (Slide 70 & Exercise 2.3)
+* **Formulation:** Eigen-decomposition of sample Covariance Matrix: $C v_i = \lambda_i v_i$.
+* **Variance Decomposition (PVE):**
+  * **PC1 (48.28% PVE):** Turbine thermodynamic load component (heavy positive loadings on `CDP`, `TEY`, `GTEP`, `TIT`).
+  * **PC2 (20.48% PVE):** Environmental temperature & combustion trade-off axis (opposing loadings on `AT`/`NOx` vs `CO`).
+  * **Cumulative Coverage:** First 2 components explain **68.76%** of total variance; first 5 components explain **92.02%** (Scree plot elbow at $p=5$).
+* **Exploratory Takeaway:** The 11 physical sensor variables collapse into an effective low-dimensional manifold governed primarily by power dispatch demand and ambient weather conditions.

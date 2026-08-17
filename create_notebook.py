@@ -30,7 +30,7 @@ cells = [
         "metadata": {},
         "source": [
             "## 0. Setup and Environment\n",
-            "Importing core scientific libraries for data analysis and visualization."
+            "Importing standard libraries required for data manipulation, analysis, and visualization."
         ]
     },
     {
@@ -222,34 +222,7 @@ cells = [
         "cell_type": "markdown",
         "metadata": {},
         "source": [
-            "### 2.3 Visual Inspection of Sensor Distributions and Boxplots"
-        ]
-    },
-    {
-        "cell_type": "code",
-        "execution_count": None,
-        "metadata": {},
-        "outputs": [],
-        "source": [
-            "fig, axes = plt.subplots(3, 4, figsize=(16, 11))\n",
-            "axes = axes.flatten()\n",
-            "\n",
-            "for i, col in enumerate(sensor_cols):\n",
-            "    sns.boxplot(y=df_clean[col], ax=axes[i], color='#3498db', width=0.4)\n",
-            "    axes[i].set_title(f\"{col} Distribution\", fontweight='bold')\n",
-            "    axes[i].set_ylabel(\"\")\n",
-            "\n",
-            "# Hide empty 12th subplot\n",
-            "axes[-1].set_visible(False)\n",
-            "plt.tight_layout()\n",
-            "plt.show()"
-        ]
-    },
-    {
-        "cell_type": "markdown",
-        "metadata": {},
-        "source": [
-            "### 2.4 Chronological Train / Test Partitioning\n",
+            "### 2.3 Chronological Train / Test Partitioning\n",
             "In accordance with the benchmark evaluation protocol:\n",
             "- **Training / Cross-Validation Set:** 2011–2013 (first 3 years)\n",
             "- **Independent Test Set:** 2014–2015 (last 2 years)"
@@ -272,8 +245,8 @@ cells = [
         "cell_type": "markdown",
         "metadata": {},
         "source": [
-            "### 2.5 Feature Standardization (Z-score Normalization)\n",
-            "To ensure equal weighting in multivariate analysis and prevent leakage, mean and standard deviation are computed strictly on the training set and then applied to transform both training and testing partitions."
+            "### 2.4 Feature Standardization (Z-score Normalization)\n",
+            "To prevent data leakage, mean and standard deviation are computed strictly on the training set and applied to both training and test partitions."
         ]
     },
     {
@@ -282,16 +255,233 @@ cells = [
         "metadata": {},
         "outputs": [],
         "source": [
-            "# Compute mean and std from training set only\n",
             "scaler_mean = train_df[sensor_cols].mean()\n",
             "scaler_std = train_df[sensor_cols].std()\n",
             "\n",
-            "# Standardize\n",
             "train_scaled = (train_df[sensor_cols] - scaler_mean) / scaler_std\n",
             "test_scaled = (test_df[sensor_cols] - scaler_mean) / scaler_std\n",
             "\n",
             "print(\"Standardization completed successfully.\")\n",
             "train_scaled.describe().round(2).T[['mean', 'std', 'min', 'max']]"
+        ]
+    },
+    # Section 3
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "## 3. Exploratory Analysis (EDA)\n",
+            "\n",
+            "### 3.1 Course Definition of Exploratory Data Analysis\n",
+            "As defined in the course lectures (**Slides 3, 10–18, 58, 64, 70 of `DA.pdf`**):\n",
+            "> *\"A distribution is a way of representing how a variable is distributed in a population. Statistic is about synthesis: we synthesize distributions by measuring **Size (Center)** and **Spread (Variability)**.\"*\n",
+            ">\n",
+            "> *\"Principal Component Analysis (PCA) is a dimensionality reduction technique used for **exploratory data analysis (unsupervised learning)** and feature extraction (support to supervised learning).\"*\n",
+            "\n",
+            "In this section, we conduct:\n",
+            "1. **Univariate Synthesis**: Measuring Size ($L_2$ Mean $\\mu$, $L_1$ Median, $L_0$ Mode) and Spread (Variance $\\sigma^2$, IQR, Gini Coefficient $G$).\n",
+            "2. **Bivariate Association & Correlation**: Pearson correlation coefficient $r_{XY}$, collinearity inspection, and thermodynamic relationship analysis.\n",
+            "3. **Multivariate Exploratory PCA**: Covariance matrix eigen-decomposition, Proportion of Variance Explained (PVE), Scree plot, and Biplot 2D projection."
+        ]
+    },
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "### 3.2 Size & Spread Synthesis (Course Formulations)\n",
+            "Implementing the Gini Coefficient from **Exercise 1.1**:\n",
+            "$$G = \\frac{\\sum_{i=1}^n \\sum_{j=1}^n |x_i - x_j|}{2n \\sum_{i=1}^n x_i}$$"
+        ]
+    },
+    {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "def compute_gini(arr):\n",
+            "    arr = np.sort(arr)\n",
+            "    n = len(arr)\n",
+            "    index = np.arange(1, n + 1)\n",
+            "    return (2 * np.sum(index * arr) - (n + 1) * np.sum(arr)) / (n * np.sum(arr))\n",
+            "\n",
+            "eda_records = []\n",
+            "for col in sensor_cols:\n",
+            "    vals = train_df[col].values\n",
+            "    q1, med, q3 = np.percentile(vals, [25, 50, 75])\n",
+            "    iqr = q3 - q1\n",
+            "    mean_val = np.mean(vals)\n",
+            "    std_val = np.std(vals)\n",
+            "    gini_val = compute_gini(vals)\n",
+            "    \n",
+            "    eda_records.append({\n",
+            "        'Variable': col,\n",
+            "        'Mean (L2 Center)': round(mean_val, 2),\n",
+            "        'Median (L1 Center)': round(med, 2),\n",
+            "        'Std Dev (Spread sigma)': round(std_val, 2),\n",
+            "        'IQR (Spread Q3-Q1)': round(iqr, 2),\n",
+            "        'Gini Coefficient G': round(gini_val, 3)\n",
+            "    })\n",
+            "\n",
+            "df_eda_table = pd.DataFrame(eda_records)\n",
+            "df_eda_table"
+        ]
+    },
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "### 3.3 Pearson Correlation Matrix and Collinearity Structure\n",
+            "As taught in **Slide 64 & Slide 114**, Pearson's correlation coefficient evaluates linear dependence:\n",
+            "$$r_{XY} = \\frac{\\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})}{\\sqrt{\\sum_{i=1}^n (x_i - \\bar{x})^2} \\sqrt{\\sum_{i=1}^n (y_i - \\bar{y})^2}}$$"
+        ]
+    },
+    {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "corr_matrix = train_df[sensor_cols].corr()\n",
+            "\n",
+            "plt.figure(figsize=(10, 8))\n",
+            "sns.heatmap(corr_matrix, annot=True, fmt='.2f', cmap='Blues', vmin=-1, vmax=1,\n",
+            "            cbar_kws={'label': \"Pearson Correlation Coefficient (r)\"})\n",
+            "plt.title('Feature Correlation Matrix (Training Set 2011–2013)', fontsize=13, fontweight='bold', pad=12)\n",
+            "plt.tight_layout()\n",
+            "plt.show()"
+        ]
+    },
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "### 3.4 Key Thermodynamic Relationships & Emissions Trade-offs"
+        ]
+    },
+    {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "fig, axes = plt.subplots(1, 3, figsize=(16, 4.8))\n",
+            "sample_df = train_df.sample(3000, random_state=42)\n",
+            "\n",
+            "# 1. Ambient Temperature vs Energy Yield\n",
+            "sns.scatterplot(data=sample_df, x='AT', y='TEY', ax=axes[0], color='#296299', alpha=0.4, s=20)\n",
+            "axes[0].set_title('AT vs TEY: Ambient Temperature Effect\\n(r = -0.58, Air Density Loss)', fontweight='bold')\n",
+            "axes[0].set_xlabel('Ambient Temperature AT (°C)')\n",
+            "axes[0].set_ylabel('Turbine Energy Yield TEY (MWh)')\n",
+            "\n",
+            "# 2. Compressor Discharge Pressure vs Energy Yield\n",
+            "sns.scatterplot(data=sample_df, x='CDP', y='TEY', ax=axes[1], color='#27ae60', alpha=0.4, s=20)\n",
+            "axes[1].set_title('CDP vs TEY: Operating Pressure Work\\n(r = +0.99, Collinear Drive)', fontweight='bold')\n",
+            "axes[1].set_xlabel('Compressor Discharge Pressure CDP (mbar)')\n",
+            "axes[1].set_ylabel('Turbine Energy Yield TEY (MWh)')\n",
+            "\n",
+            "# 3. CO vs NOx Tradeoff\n",
+            "sns.scatterplot(data=sample_df, x='CO', y='NOX', ax=axes[2], color='#e67e22', alpha=0.4, s=20)\n",
+            "axes[2].set_title('CO vs NOx: Combustion Mechanism\\n(r = -0.37, Thermal NOx vs Incomplete Oxidation)', fontweight='bold')\n",
+            "axes[2].set_xlabel('Carbon Monoxide CO (mg/m³)')\n",
+            "axes[2].set_ylabel('Nitrogen Oxides NOx (mg/m³)')\n",
+            "\n",
+            "plt.tight_layout()\n",
+            "plt.show()"
+        ]
+    },
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "### 3.5 Multivariate Unsupervised EDA: Principal Component Analysis (PCA)\n",
+            "Implementing PCA via Covariance Matrix Eigen-decomposition (**Slide 75 of `DA.pdf`**):\n",
+            "$$C = \\frac{1}{m} X^T X \\implies C v_i = \\lambda_i v_i$$\n",
+            "$$\\text{PVE}_i = \\frac{\\lambda_i}{\\sum_{j=1}^n \\lambda_j}$$"
+        ]
+    },
+    {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# Scaled training data\n",
+            "X_std = train_scaled.values\n",
+            "\n",
+            "# Covariance matrix\n",
+            "C = np.cov(X_std, rowvar=False)\n",
+            "\n",
+            "# Eigenvalues and Eigenvectors\n",
+            "eigenvalues, eigenvectors = np.linalg.eigh(C)\n",
+            "\n",
+            "# Sort descending\n",
+            "idx = np.argsort(eigenvalues)[::-1]\n",
+            "eigenvalues = eigenvalues[idx]\n",
+            "eigenvectors = eigenvectors[:, idx]\n",
+            "\n",
+            "pve = eigenvalues / np.sum(eigenvalues)\n",
+            "cum_pve = np.cumsum(pve)\n",
+            "\n",
+            "pca_summary = pd.DataFrame({\n",
+            "    'Component': [f'PC{i:02d}' for i in range(1, 12)],\n",
+            "    'Eigenvalue (Variance)': eigenvalues.round(3),\n",
+            "    'Individual PVE (%)': (pve * 100).round(2),\n",
+            "    'Cumulative PVE (%)': (cum_pve * 100).round(2)\n",
+            "})\n",
+            "pca_summary"
+        ]
+    },
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "### 3.6 PCA Scree Plot and Biplot Projection"
+        ]
+    },
+    {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# Scree Plot\n",
+            "fig, ax1 = plt.subplots(figsize=(10, 5))\n",
+            "ax1.bar(range(1, 12), pve * 100, color='#296299', alpha=0.85, label='Individual PVE (%)')\n",
+            "ax1.set_xlabel('Principal Component Rank', fontweight='bold')\n",
+            "ax1.set_ylabel('Proportion of Variance Explained (%)', color='#102542', fontweight='bold')\n",
+            "ax1.set_xticks(range(1, 12))\n",
+            "\n",
+            "ax2 = ax1.twinx()\n",
+            "ax2.plot(range(1, 12), cum_pve * 100, color='#d9534f', marker='o', linewidth=2.5, label='Cumulative PVE (%)')\n",
+            "ax2.set_ylabel('Cumulative PVE (%)', color='#d9534f', fontweight='bold')\n",
+            "ax2.grid(False)\n",
+            "ax2.axhline(80, color='gray', linestyle='--', alpha=0.7, label='80% Cutoff')\n",
+            "ax2.axhline(90, color='black', linestyle=':', alpha=0.7, label='90% Cutoff')\n",
+            "\n",
+            "plt.title('PCA Scree Plot & Cumulative Proportion of Variance Explained (PVE)', fontsize=13, fontweight='bold', pad=12)\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n",
+            "\n",
+            "# 2D Biplot\n",
+            "scores_2d = X_std @ eigenvectors[:, :2]\n",
+            "plt.figure(figsize=(9.5, 6.5))\n",
+            "plt.scatter(scores_2d[:2500, 0], scores_2d[:2500, 1], alpha=0.25, color='#296299', s=15, label='Observations')\n",
+            "\n",
+            "scale_arrow = 3.8\n",
+            "for i, var in enumerate(sensor_cols):\n",
+            "    plt.arrow(0, 0, eigenvectors[i, 0]*scale_arrow, eigenvectors[i, 1]*scale_arrow,\n",
+            "              head_width=0.12, head_length=0.12, fc='#c0392b', ec='#c0392b', linewidth=1.5)\n",
+            "    plt.text(eigenvectors[i, 0]*scale_arrow*1.12, eigenvectors[i, 1]*scale_arrow*1.12, var,\n",
+            "             color='#900C3F', fontweight='bold', fontsize=11, ha='center', va='center')\n",
+            "\n",
+            "plt.axhline(0, color='gray', linestyle='--', alpha=0.5)\n",
+            "plt.axvline(0, color='gray', linestyle='--', alpha=0.5)\n",
+            "plt.xlabel(f'PC1 ({pve[0]*100:.1f}% Variance Explained)', fontweight='bold')\n",
+            "plt.ylabel(f'PC2 ({pve[1]*100:.1f}% Variance Explained)', fontweight='bold')\n",
+            "plt.title('PCA Biplot: 2D Projection and Feature Loadings (Training 2011–2013)', fontsize=13, fontweight='bold', pad=12)\n",
+            "plt.tight_layout()\n",
+            "plt.show()"
         ]
     }
 ]
@@ -316,4 +506,4 @@ notebook_content = {
 with open("gas_turbine_analysis.ipynb", "w", encoding="utf-8") as f:
     json.dump(notebook_content, f, indent=2)
 
-print("gas_turbine_analysis.ipynb updated with Section 1 and Section 2.")
+print("gas_turbine_analysis.ipynb updated with Section 3 (Exploratory Data Analysis).")

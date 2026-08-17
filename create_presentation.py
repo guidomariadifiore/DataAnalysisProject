@@ -16,10 +16,8 @@ def update_presentation():
     ACCENT_BLUE = RGBColor(41, 98, 153)
     LIGHT_BG = RGBColor(248, 249, 250)
     TEXT_DARK = RGBColor(33, 37, 41)
-    TEXT_MUTED = RGBColor(108, 117, 125)
     WHITE = RGBColor(255, 255, 255)
     BORDER_COLOR = RGBColor(220, 225, 230)
-    GREEN_ACCENT = RGBColor(40, 167, 69)
 
     def add_header(slide, title_text, category_text="DATA ANALYTICS PROJECT WORK"):
         header_box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(1.2))
@@ -54,18 +52,15 @@ def update_presentation():
     tbox = slide1.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(11.333), Inches(3.5))
     tf1 = tbox.text_frame
     tf1.word_wrap = True
-    
     p = tf1.paragraphs[0]
     p.text = "Data Analytics & Predictive Modeling"
     p.font.size = Pt(36)
     p.font.bold = True
     p.font.color.rgb = WHITE
-    
     p2 = tf1.add_paragraph()
     p2.text = "Flue Gas Emissions (CO, NOx) and Energy Yield in Gas Turbines"
     p2.font.size = Pt(22)
     p2.font.color.rgb = RGBColor(180, 205, 235)
-    
     p3 = tf1.add_paragraph()
     p3.text = "\nCourse: Data Analytics (and Data Driven Decision) — University of L'Aquila\nBased on Course Methodologies and 2011–2015 Hourly Sensor Data"
     p3.font.size = Pt(14)
@@ -74,7 +69,6 @@ def update_presentation():
     # --- SLIDE 2: Workflow ---
     slide2 = prs.slides.add_slide(blank_layout)
     add_header(slide2, "Project Workflow & Guidelines Structure")
-    
     steps = [
         ("1. Description of Dataset", "Data origin, 11 sensor variables, 36,733 hourly observations, train/test split protocol."),
         ("2. Data Cleaning & Validation", "Verification of missing values, range validation, physical plausibility check, standard scaling."),
@@ -89,23 +83,19 @@ def update_presentation():
         row = i if i < 4 else i - 4
         left = Inches(0.8 + col * 6.0)
         top = Inches(1.5 + row * 1.35)
-        
         card = slide2.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, Inches(5.7), Inches(1.2))
         card.fill.solid()
         card.fill.fore_color.rgb = LIGHT_BG
         card.line.color.rgb = BORDER_COLOR
-        
         tf = card.text_frame
         tf.word_wrap = True
         tf.margin_left = Inches(0.2)
         tf.margin_top = Inches(0.15)
-        
         p = tf.paragraphs[0]
         p.text = title
         p.font.size = Pt(14)
         p.font.bold = True
         p.font.color.rgb = DARK_BLUE
-        
         p_desc = tf.add_paragraph()
         p_desc.text = desc
         p_desc.font.size = Pt(11)
@@ -114,23 +104,19 @@ def update_presentation():
     # --- SLIDE 3: 1. Description of Dataset ---
     slide3 = prs.slides.add_slide(blank_layout)
     add_header(slide3, "1. Description of the Dataset & Sensor Features")
-    
     card_left = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.5), Inches(4.0), Inches(5.5))
     card_left.fill.solid()
     card_left.fill.fore_color.rgb = LIGHT_BG
     card_left.line.color.rgb = BORDER_COLOR
-    
     tf_l = card_left.text_frame
     tf_l.word_wrap = True
     tf_l.margin_left = Inches(0.25)
     tf_l.margin_top = Inches(0.25)
-    
     p = tf_l.paragraphs[0]
     p.text = "Dataset Characteristics"
     p.font.size = Pt(16)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
-    
     info_points = [
         ("Location:", "Gas turbine plant in NW Turkey"),
         ("Timeframe:", "2011 – 2015 (5 consecutive years)"),
@@ -152,7 +138,6 @@ def update_presentation():
     table.columns[1].width = Inches(1.1)
     table.columns[2].width = Inches(1.0)
     table.columns[3].width = Inches(3.8)
-    
     headers = ["Category", "Variable", "Unit", "Physical Role / Meaning"]
     for col_idx, h in enumerate(headers):
         cell = table.cell(0, col_idx)
@@ -163,7 +148,6 @@ def update_presentation():
         p.font.bold = True
         p.font.size = Pt(11)
         p.font.color.rgb = WHITE
-        
     sensor_data = [
         ("Ambient", "AT", "°C", "Ambient Temperature (inlet air density driver)"),
         ("Ambient", "AP", "mbar", "Ambient Atmospheric Pressure"),
@@ -187,11 +171,9 @@ def update_presentation():
             p.font.size = Pt(10)
             p.font.color.rgb = TEXT_DARK
 
-    # --- SLIDE 4: 2. Data Cleaning & Preprocessing ---
+    # --- SLIDE 4: 2. Data Cleaning ---
     slide4 = prs.slides.add_slide(blank_layout)
     add_header(slide4, "2. Data Cleaning, Quality Validation & Preprocessing")
-    
-    # 3 Summary Cards
     card_c1 = slide4.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.5), Inches(3.7), Inches(2.5))
     card_c1.fill.solid()
     card_c1.fill.fore_color.rgb = LIGHT_BG
@@ -205,13 +187,7 @@ def update_presentation():
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
-    items_c1 = [
-        "• Missing Values: 0 nulls across all 11 columns.",
-        "• Duplicates: 7 identical sensor rows detected and pruned.",
-        "• Chronology: Preserved time order across 2011–2015.",
-        "• Sensor Health: No negative pressures or invalid readings."
-    ]
-    for it in items_c1:
+    for it in ["• Missing Values: 0 nulls across all 11 columns.", "• Duplicates: 7 identical sensor rows detected and pruned.", "• Chronology: Preserved time order across 2011–2015.", "• Sensor Health: No negative pressures or invalid readings."]:
         p = tf_c1.add_paragraph()
         p.text = it
         p.font.size = Pt(10.5)
@@ -230,14 +206,7 @@ def update_presentation():
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
-    items_c2 = [
-        "• Robust Dispersion: $\\hat{\\sigma} = \\frac{IQR}{1.35} = \\frac{Q_3 - Q_1}{1.35}$",
-        "• Robust Centering: Uses Median ($Q_2$) to resist leverage.",
-        "• Boundaries: $[\\text{Med} - 5\\hat{\\sigma},\\; \\text{Med} + 5\\hat{\\sigma}]$",
-        "• Ambient/Turbine: 0 outliers (100% physically valid).",
-        "• Emissions (CO/NOx): Skewed tail corresponds to true combustion events (retained)."
-    ]
-    for it in items_c2:
+    for it in ["• Robust Dispersion: $\\hat{\\sigma} = \\frac{IQR}{1.35} = \\frac{Q_3 - Q_1}{1.35}$", "• Robust Centering: Uses Median ($Q_2$) to resist leverage.", "• Boundaries: $[\\text{Med} - 5\\hat{\\sigma},\\; \\text{Med} + 5\\hat{\\sigma}]$", "• Ambient/Turbine: 0 outliers (100% physically valid).", "• Emissions (CO/NOx): Skewed tail corresponds to true combustion events."]:
         p = tf_c2.add_paragraph()
         p.text = it
         p.font.size = Pt(10.5)
@@ -256,24 +225,16 @@ def update_presentation():
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
-    items_c3 = [
-        "• Train Set (2011–13): 22,187 samples (60.4%)",
-        "• Test Set (2014–15): 14,539 samples (39.6%)",
-        "• No Leakage: Fit scaler strictly on Train, transform Test.",
-        "• Z-Score Standardization: $z = \\frac{x - \\mu_{train}}{\\sigma_{train}}$ for PCA & Regression."
-    ]
-    for it in items_c3:
+    for it in ["• Train Set (2011–13): 22,187 samples (60.4%)", "• Test Set (2014–15): 14,539 samples (39.6%)", "• No Leakage: Fit scaler strictly on Train, transform Test.", "• Z-Score Standardization: $z = \\frac{x - \\mu_{train}}{\\sigma_{train}}$ for PCA & Regression."]:
         p = tf_c3.add_paragraph()
         p.text = it
         p.font.size = Pt(10.5)
         p.font.color.rgb = TEXT_DARK
 
-    # Bottom Table: Sigma-Clipping Bounds Summary
     table_shape4 = slide4.shapes.add_table(7, 6, Inches(0.8), Inches(4.3), Inches(11.7), Inches(2.7))
     t4 = table_shape4.table
     for c in range(6):
         t4.columns[c].width = Inches(1.95)
-    
     headers4 = ["Variable", "Median (Q2)", "IQR (Q3 - Q1)", "Est. σ̂ (IQR/1.35)", "Valid Interval [Med ± 5σ̂]", "Physical Assessment"]
     for col_idx, h in enumerate(headers4):
         cell = t4.cell(0, col_idx)
@@ -284,7 +245,6 @@ def update_presentation():
         p.font.bold = True
         p.font.size = Pt(10)
         p.font.color.rgb = WHITE
-        
     sigma_data = [
         ("AT (°C)", "17.80", "11.88", "8.80", "[-26.21, 61.82]", "0 outliers (Physical weather)"),
         ("AP (mbar)", "1012.60", "8.20", "6.07", "[982.23, 1042.97]", "0 outliers (Barometric band)"),
@@ -303,7 +263,89 @@ def update_presentation():
             p.font.size = Pt(9.5)
             p.font.color.rgb = TEXT_DARK
 
+    # --- SLIDE 5: 3. Exploratory Analysis - Size, Spread & Correlation ---
+    slide5 = prs.slides.add_slide(blank_layout)
+    add_header(slide5, "3. Exploratory Analysis: Distributions & Correlation Structure")
+
+    # Left: Course Definition & Key Insights Card
+    card_eda1 = slide5.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
+    card_eda1.fill.solid()
+    card_eda1.fill.fore_color.rgb = LIGHT_BG
+    card_eda1.line.color.rgb = BORDER_COLOR
+    tf_e1 = card_eda1.text_frame
+    tf_e1.word_wrap = True
+    tf_e1.margin_left = Inches(0.25)
+    tf_e1.margin_top = Inches(0.2)
+
+    p = tf_e1.paragraphs[0]
+    p.text = "Course Definition & Statistical Synthesis"
+    p.font.size = Pt(14)
+    p.font.bold = True
+    p.font.color.rgb = DARK_BLUE
+
+    eda_points = [
+        ("Exploratory Analysis (Slide 3 & 10):", "Unsupervised synthesis of distributions into Size (Mean $\\mu$, Median) and Spread (Variance $\\sigma^2$, IQR, Gini $G$, Entropy $H$)."),
+        ("Size vs Spread Synthesis:", "• Mean vs Median: CO mean (2.21) >> median (1.52) demonstrates strong positive skew.\n• Gini Index: CO exhibits high concentration (G=0.442) due to episodic spikes."),
+        ("Key Pearson Correlation ($r_{XY}$) Findings:", "• Compressor & Energy Coupling: CDP & TEY ($r = 0.99$), GTEP & TEY ($r = 0.98$) indicate strong collinearity in operating load.\n• Environmental Cooling Effect: Ambient Temp AT vs TEY ($r = -0.58$) due to reduced air density at higher temperatures.\n• Combustion Trade-off: CO vs NOx ($r = -0.37$) reflects the physical inverse relationship between complete oxidation and thermal NOx.")
+    ]
+    for lbl, desc in eda_points:
+        p_l = tf_e1.add_paragraph()
+        p_l.text = f"\n{lbl}"
+        p_l.font.bold = True
+        p_l.font.size = Pt(11)
+        p_l.font.color.rgb = ACCENT_BLUE
+        
+        p_d = tf_e1.add_paragraph()
+        p_d.text = desc
+        p_d.font.size = Pt(10)
+        p_d.font.color.rgb = TEXT_DARK
+
+    # Right: Correlation Heatmap Image
+    if os.path.exists("figures/eda_correlation_heatmap.png"):
+        slide5.shapes.add_picture("figures/eda_correlation_heatmap.png", Inches(6.7), Inches(1.4), width=Inches(5.8))
+
+    # --- SLIDE 6: 3. Exploratory Analysis - PCA & Physical Insights ---
+    slide6 = prs.slides.add_slide(blank_layout)
+    add_header(slide6, "3. Exploratory Analysis: PCA Dimensionality Reduction & Biplot")
+
+    # Left: PCA Definition & Interpretation Card
+    card_pca = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
+    card_pca.fill.solid()
+    card_pca.fill.fore_color.rgb = LIGHT_BG
+    card_pca.line.color.rgb = BORDER_COLOR
+    tf_pca = card_pca.text_frame
+    tf_pca.word_wrap = True
+    tf_pca.margin_left = Inches(0.25)
+    tf_pca.margin_top = Inches(0.2)
+
+    p = tf_pca.paragraphs[0]
+    p.text = "PCA as an Exploratory Technique (Slide 70)"
+    p.font.size = Pt(14)
+    p.font.bold = True
+    p.font.color.rgb = DARK_BLUE
+
+    pca_notes = [
+        ("Course Formulation (Slide 75):", "Eigen-decomposition of Covariance Matrix $C v_i = \\lambda_i v_i$.\nProportion of Variance Explained: $\\text{PVE}_i = \\lambda_i / \\sum \\lambda_j$."),
+        ("Dimensionality Reduction Results:", "• PC1 (48.28%): Captures general turbine thermodynamic load (high loadings for CDP, TEY, GTEP, TIT).\n• PC2 (20.48%): Captures ambient temperature (AT) and the inverse CO vs NOx combustion trade-off.\n• First 2 PCs capture 68.76% of total system variance.\n• First 5 PCs capture 92.02% (Scree plot elbow at $p=5$)."),
+        ("Industrial Takeaway:", "The 11 physical sensors effectively lie on a 2-to-5 dimensional manifold governed by ambient weather and power dispatch.")
+    ]
+    for lbl, desc in pca_notes:
+        p_l = tf_pca.add_paragraph()
+        p_l.text = f"\n{lbl}"
+        p_l.font.bold = True
+        p_l.font.size = Pt(11)
+        p_l.font.color.rgb = ACCENT_BLUE
+        
+        p_d = tf_pca.add_paragraph()
+        p_d.text = desc
+        p_d.font.size = Pt(10)
+        p_d.font.color.rgb = TEXT_DARK
+
+    # Right: Biplot or Scree plot Image
+    if os.path.exists("figures/eda_pca_biplot.png"):
+        slide6.shapes.add_picture("figures/eda_pca_biplot.png", Inches(6.7), Inches(1.4), width=Inches(5.8))
+
     prs.save("presentation.pptx")
-    print("presentation.pptx updated with Slide 4 (Data Cleaning).")
+    print("presentation.pptx updated with Slide 5 and Slide 6 (EDA & PCA).")
 
 update_presentation()
