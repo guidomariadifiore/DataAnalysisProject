@@ -263,11 +263,9 @@ def update_presentation():
             p.font.size = Pt(9.5)
             p.font.color.rgb = TEXT_DARK
 
-    # --- SLIDE 5: 3. Exploratory Analysis - Size, Spread & Correlation ---
+    # --- SLIDE 5: 3. EDA - Size, Spread & Correlation ---
     slide5 = prs.slides.add_slide(blank_layout)
     add_header(slide5, "3. Exploratory Analysis: Distributions & Correlation Structure")
-
-    # Left: Course Definition & Key Insights Card
     card_eda1 = slide5.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
     card_eda1.fill.solid()
     card_eda1.fill.fore_color.rgb = LIGHT_BG
@@ -276,13 +274,11 @@ def update_presentation():
     tf_e1.word_wrap = True
     tf_e1.margin_left = Inches(0.25)
     tf_e1.margin_top = Inches(0.2)
-
     p = tf_e1.paragraphs[0]
     p.text = "Course Definition & Statistical Synthesis"
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
-
     eda_points = [
         ("Exploratory Analysis (Slide 3 & 10):", "Unsupervised synthesis of distributions into Size (Mean $\\mu$, Median) and Spread (Variance $\\sigma^2$, IQR, Gini $G$, Entropy $H$)."),
         ("Size vs Spread Synthesis:", "• Mean vs Median: CO mean (2.21) >> median (1.52) demonstrates strong positive skew.\n• Gini Index: CO exhibits high concentration (G=0.442) due to episodic spikes."),
@@ -294,21 +290,16 @@ def update_presentation():
         p_l.font.bold = True
         p_l.font.size = Pt(11)
         p_l.font.color.rgb = ACCENT_BLUE
-        
         p_d = tf_e1.add_paragraph()
         p_d.text = desc
         p_d.font.size = Pt(10)
         p_d.font.color.rgb = TEXT_DARK
-
-    # Right: Correlation Heatmap Image
     if os.path.exists("figures/eda_correlation_heatmap.png"):
         slide5.shapes.add_picture("figures/eda_correlation_heatmap.png", Inches(6.7), Inches(1.4), width=Inches(5.8))
 
-    # --- SLIDE 6: 3. Exploratory Analysis - PCA & Physical Insights ---
+    # --- SLIDE 6: 3. EDA - PCA & Physical Insights ---
     slide6 = prs.slides.add_slide(blank_layout)
     add_header(slide6, "3. Exploratory Analysis: PCA Dimensionality Reduction & Biplot")
-
-    # Left: PCA Definition & Interpretation Card
     card_pca = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
     card_pca.fill.solid()
     card_pca.fill.fore_color.rgb = LIGHT_BG
@@ -317,13 +308,11 @@ def update_presentation():
     tf_pca.word_wrap = True
     tf_pca.margin_left = Inches(0.25)
     tf_pca.margin_top = Inches(0.2)
-
     p = tf_pca.paragraphs[0]
     p.text = "PCA as an Exploratory Technique (Slide 70)"
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
-
     pca_notes = [
         ("Course Formulation (Slide 75):", "Eigen-decomposition of Covariance Matrix $C v_i = \\lambda_i v_i$.\nProportion of Variance Explained: $\\text{PVE}_i = \\lambda_i / \\sum \\lambda_j$."),
         ("Dimensionality Reduction Results:", "• PC1 (48.28%): Captures general turbine thermodynamic load (high loadings for CDP, TEY, GTEP, TIT).\n• PC2 (20.48%): Captures ambient temperature (AT) and the inverse CO vs NOx combustion trade-off.\n• First 2 PCs capture 68.76% of total system variance.\n• First 5 PCs capture 92.02% (Scree plot elbow at $p=5$)."),
@@ -335,17 +324,83 @@ def update_presentation():
         p_l.font.bold = True
         p_l.font.size = Pt(11)
         p_l.font.color.rgb = ACCENT_BLUE
-        
         p_d = tf_pca.add_paragraph()
         p_d.text = desc
         p_d.font.size = Pt(10)
         p_d.font.color.rgb = TEXT_DARK
-
-    # Right: Biplot or Scree plot Image
     if os.path.exists("figures/eda_pca_biplot.png"):
         slide6.shapes.add_picture("figures/eda_pca_biplot.png", Inches(6.7), Inches(1.4), width=Inches(5.8))
 
+    # --- SLIDE 7: 4. Main Analysis - Objectives & Adopted Methods ---
+    slide7 = prs.slides.add_slide(blank_layout)
+    add_header(slide7, "4. Main Analysis: Objectives & Methodological Framework")
+
+    # 3 Objective Cards
+    objs = [
+        ("Objective 1: Energy Yield (TEY) & PCR", 
+         "• Predict net turbine energy yield from sensor telemetry.\n"
+         "• Problem: Extreme Multicollinearity (VIF > 250 for CDP, TIT, GTEP, Slide 115).\n"
+         "• Method: Principal Component Regression (PCR, Slides 70, 106) on 5 PCs ($Z = X V_p$) to eliminate variance inflation and ensure parameter stability."),
+        
+        ("Objective 2: Emissions Modeling (CO & NOx)", 
+         "• Quantify pollutant generation as a function of firing state.\n"
+         "• Method: Polynomial Regression (Slide 116 & Ex 4.1) for CO to capture steep non-linear spikes during low-load/startup regimes ($x \\to [x, x^2]$).\n"
+         "• Multivariate OLS for NOx tracking thermal oxidation."),
+        
+        ("Objective 3: Operational Regimes (K-Means)", 
+         "• Discover discrete turbine operational regimes (Unsupervised).\n"
+         "• Method: K-Means Clustering (Slides 90-91) with Silhouette validation (Slide 94, Ex 3.1): $\\text{SIL} = \\frac{1}{m}\\sum \\frac{b_i - a_i}{\\max(a_i, b_i)}$.\n"
+         "• Identifies Base-load, Peak-load, and Low-load emission profiles.")
+    ]
+
+    for i, (title, desc) in enumerate(objs):
+        left = Inches(0.8 + i * 4.0)
+        card_obj = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, Inches(1.5), Inches(3.7), Inches(3.2))
+        card_obj.fill.solid()
+        card_obj.fill.fore_color.rgb = LIGHT_BG
+        card_obj.line.color.rgb = BORDER_COLOR
+        tf_o = card_obj.text_frame
+        tf_o.word_wrap = True
+        tf_o.margin_left = Inches(0.2)
+        tf_o.margin_top = Inches(0.2)
+        
+        p = tf_o.paragraphs[0]
+        p.text = title
+        p.font.size = Pt(13)
+        p.font.bold = True
+        p.font.color.rgb = DARK_BLUE
+        
+        p_desc = tf_o.add_paragraph()
+        p_desc.text = desc
+        p_desc.font.size = Pt(10)
+        p_desc.font.color.rgb = TEXT_DARK
+
+    # Bottom Banner: Methods & Diagnostics Summary
+    bot_card = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(4.9), Inches(11.7), Inches(2.1))
+    bot_card.fill.solid()
+    bot_card.fill.fore_color.rgb = LIGHT_BG
+    bot_card.line.color.rgb = BORDER_COLOR
+    tf_b = bot_card.text_frame
+    tf_b.word_wrap = True
+    tf_b.margin_left = Inches(0.25)
+    tf_b.margin_top = Inches(0.15)
+
+    p = tf_b.paragraphs[0]
+    p.text = "Mathematical Formulations & Accuracy Metrics (Course Standards)"
+    p.font.size = Pt(13)
+    p.font.bold = True
+    p.font.color.rgb = DARK_BLUE
+
+    p_f = tf_b.add_paragraph()
+    p_f.text = (
+        "• Ordinary Least Squares: $\\hat{\\beta} = (X^T X)^{-1} X^T y$ (Slide 106) | Principal Component Regression: $\\hat{\\beta}_{PCR} = (Z^T Z)^{-1} Z^T y$\n"
+        "• Accuracy Metrics: $R^2 = 1 - \\frac{RSS}{TSS}$ (Slide 108), $\\text{RMSE} = \\sqrt{\\frac{1}{m}\\sum (y_i - \\hat{y}_i)^2}$\n"
+        "• Multicollinearity VIF: $\\text{VIF}(\\hat{\\beta}_j) = \\frac{1}{1 - R^2_{x_j|x_{-j}}}$ (Slide 115) | Silhouette Quality: $\\text{SIL}_i = \\frac{b_i - a_i}{\\max(a_i, b_i)}$ (Slide 94)"
+    )
+    p_f.font.size = Pt(10.5)
+    p_f.font.color.rgb = TEXT_DARK
+
     prs.save("presentation.pptx")
-    print("presentation.pptx updated with Slide 5 and Slide 6 (EDA & PCA).")
+    print("presentation.pptx updated with Slide 7 (Main Analysis Objectives & Methods).")
 
 update_presentation()
