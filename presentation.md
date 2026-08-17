@@ -14,7 +14,7 @@
 
 ## Slide 2: Project Workflow (The 7 Guideline Steps)
 1. **Description of the Dataset:** Origin, physical sensors, 36,733 hourly observations, train/test protocol.
-2. **Data Cleaning:** Missing values check, physical consistency verification, standardization.
+2. **Data Cleaning:** Missing values check, physical consistency verification, $\sigma$-clipping, standardization.
 3. **Exploratory Data Analysis:** Summary stats, distributions, correlation matrices, ambient effects.
 4. **Main Analysis & Methodology:** Dimensionality reduction (PCA), linear regression, diagnostic tests.
 5. **Preview of Results:** High-level summary of model performance and emission trade-offs.
@@ -48,4 +48,19 @@
 | | `NOx` | $\text{mg/m}^3$ | Nitrogen Oxides ($\text{NO} + \text{NO}_2$, thermal NOx mechanism) |
 
 ---
-*(Additional slides will be expanded as we complete subsequent steps 2 through 7)*
+
+## Slide 4: 2. Data Cleaning, Quality Validation & Preprocessing
+### 1. Data Integrity & Deduplication
+* **Missing Data:** 0 missing / null values across all 11 sensor channels.
+* **Duplicates:** 7 duplicate sensor records identified and pruned (36,726 clean records remaining).
+* **Sensor Health:** All readings reside within physically coherent ranges (no negative pressures or aberrant extremes).
+
+### 2. Course $\sigma$-Clipping Analysis ($\hat{\sigma} = \frac{IQR}{1.35}$)
+* **Methodology:** Robust estimation of dispersion using $\hat{\sigma} = \frac{Q_3 - Q_1}{1.35}$ and median ($Q_2$) to prevent outlier masking.
+* **Ambient & Operating Variables:** 0 anomalies outside $[Q_2 - 5\hat{\sigma},\; Q_2 + 5\hat{\sigma}]$; 100% physically valid.
+* **Emissions Behavior ($\text{CO}$, $\text{NO}_x$):** Asymmetric distributions with high tail values correspond to physical transient regimes (startup, low-load incomplete combustion, and high-temperature peaks); retained for modeling.
+
+### 3. Chronological Protocol & Z-Score Scaling
+* **Training Set (2011–2013):** 22,187 instances (60.4%).
+* **Test Holdout Set (2014–2015):** 14,539 instances (39.6%).
+* **Standardization:** $z = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}}$ computed strictly on the training set to prevent data leakage.
