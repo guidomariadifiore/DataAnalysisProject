@@ -54,19 +54,41 @@
 ---
 
 ## Slide 7: 4. Main Analysis: Objectives & Methodological Framework
-### Core Analytical Objectives
-1. **Energy Yield Prediction ($\text{TEY}$) & Collinearity Resolution:**
-   * *Problem:* Severe Multicollinearity among predictors ($\text{VIF} > 250$ for `CDP`, `TIT`, `GTEP`, Slide 115).
-   * *Method:* Principal Component Regression (PCR, Slides 70, 106) using 5 orthogonal components ($Z = X V_p$) to guarantee numerical stability and out-of-sample generalization.
-2. **Emissions Modeling ($\text{CO}$ & $\text{NO}_x$):**
-   * *Problem:* Strong non-linear emission spikes at low turbine temperatures (incomplete combustion).
-   * *Method:* Polynomial Feature Expansion (Slide 116 & Ex 4.1) for $\text{CO}$ ($x \to [x, x^2]$) while maintaining linear parameter estimation. Multivariate linear regression for $\text{NO}_x$.
-3. **Operational Regime Discovery (Unsupervised):**
-   * *Method:* K-Means Clustering (Slides 90–91) validated with Silhouette Coefficient analysis (Slide 94, Ex 3.1): $\text{SIL}_i = \frac{b_i - a_i}{\max(a_i, b_i)}$.
-   * *Outcome:* Identifies 3 operational regimes: Peak Load (high yield, low CO), Baseload (nominal), and Part-load (high CO).
+* **Objective 1 (Energy Yield):** Resolve extreme multicollinearity ($\text{VIF} > 250$) via Principal Component Regression (PCR).
+* **Objective 2 (Emissions):** Polynomial regression (degree 2) for $\text{CO}$ to capture low-load spikes; OLS for $\text{NO}_x$.
+* **Objective 3 (Operational Regimes):** Unsupervised K-Means clustering ($K=3$) with Silhouette validation.
 
-### Mathematical Formulations & Accuracy Metrics (Course Standards)
-* **OLS Estimation:** $\hat{\beta} = (X^T X)^{-1} X^T y$ (Slide 106)
-* **PCR Formulation:** $\hat{\beta}_{\text{PCR}} = (Z^T Z)^{-1} Z^T y$, where $Z = X_{\text{std}} V_p$
-* **Multicollinearity VIF:** $\text{VIF}(\hat{\beta}_j) = \frac{1}{1 - R^2_{x_j|x_{-j}}}$ (Slide 115)
-* **Accuracy Metrics:** $R^2 = 1 - \frac{\text{RSS}}{\text{TSS}}$ (Slide 108), $\text{RMSE} = \sqrt{\frac{1}{m}\sum (y_i - \hat{y}_i)^2}$
+---
+
+## Slide 8: 5. Preview & High-Level Summary of the Results
+### Model Performance Matrix
+| Model & Objective | Train $R^2$ | Test $R^2$ (2014–15) | Test RMSE | Test MAE |
+| :--- | :--- | :--- | :--- | :--- |
+| **$\text{TEY}$: Ambient Baseline** | 0.1133 | -0.1407 | 15.99 MWh | 12.87 MWh |
+| **$\text{TEY}$: Full OLS (8 Features)** | 0.9977 | 0.9501 | 3.35 MWh | 3.18 MWh |
+| **$\text{TEY}$: PCR (5 Components)** | **0.9946** | **0.9828** | **1.96 MWh** | **1.62 MWh** |
+| **$\text{CO}$: Linear OLS** | 0.5728 | 0.4195 | 1.67 mg/m³ | 1.11 mg/m³ |
+| **$\text{CO}$: Polynomial (Deg. 2)** | **0.6439** | **0.4546** | **1.62 mg/m³** | **1.14 mg/m³** |
+| **$\text{NO}_x$: Multivariate OLS** | 0.4536 | -1.0928* | 15.30 mg/m³ | 13.85 mg/m³ |
+
+### Key Takeaways
+1. **PCR eliminates Multicollinearity:** PCR achieves $R^2_{\text{test}} = 0.9828$ with an RMSE of 1.96 MWh (a **41.4% error reduction** over full OLS).
+2. **Ambient Features Insufficient Alone:** Ambient inputs cannot predict dispatch yield without internal turbine pressure/temperature.
+3. **Non-linear Combustion Physics:** Quadratic polynomial terms boost $\text{CO}$ explanation to $64.4\%$ in training.
+4. **Plant Domain Shift (*):** Negative test $R^2$ for $\text{NO}_x$ captures physical burner modifications during 2014–2015.
+
+---
+
+## Slide 9: 6. Detailed Results: Energy Yield (TEY) & PCR Diagnostics
+* **Generalization Stability:** PCR achieves consistent test performance: 2014 $R^2 = 0.985$ and 2015 $R^2 = 0.982$.
+* **Residual Diagnostics (Slide 104, 108):** Residuals $e_i = y_i - \hat{y}_i$ are Gaussian, strictly centered at zero (mean error = 0.04 MWh), with uniform variance (homoscedasticity) across the operating range.
+* **Coefficient Significance (Slide 111):** All 5 Principal Components have statistically significant coefficients ($p < 0.001$), with confidence intervals strictly excluding zero.
+
+---
+
+## Slide 10: 6. Detailed Results: Emissions Modeling & Operational Regimes
+* **$\text{CO}$ Non-linear Curve (Slide 116):** Adding $\text{TIT}^2, \text{TAT}^2, \text{CDP}^2$ accurately captures the inflection point below $1070^\circ\text{C}$ where incomplete combustion escalates exponentially.
+* **Operational Regimes Profile ($K=3$, Silhouette = 0.323):**
+  * **Peak Load (4,887 hrs):** $\text{TEY}=157.0$ MWh, $\text{TIT}=1100^\circ\text{C} \implies \text{CO}=1.00$ mg/m³ (cleanest combustion).
+  * **Part-Load (5,443 hrs):** $\text{TEY}=111.8$ MWh, $\text{TIT}=1056^\circ\text{C} \implies \text{CO}=4.79$ mg/m³ (**4.8x higher CO!**).
+  * **Baseload (11,861 hrs):** $\text{TEY}=133.9$ MWh, $\text{TIT}=1089^\circ\text{C} \implies \text{CO}=1.53$ mg/m³.

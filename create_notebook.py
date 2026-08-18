@@ -550,17 +550,14 @@ cells = [
             "df_vif"
         ]
     },
+    # Section 5 & 6
     {
         "cell_type": "markdown",
         "metadata": {},
         "source": [
-            "### 4.3 Mathematical Formulation of Regression Methods (OLS, PCR, Polynomial)\n",
-            "- **Multiple Linear Regression (Slide 106)**:  \n",
-            "  $$\\hat{\\beta} = (X^T X)^{-1} X^T y$$\n",
-            "- **Principal Component Regression (Slides 70, 75)**:  \n",
-            "  $$Z = X_{\\text{std}} V_p, \\quad \\hat{\\beta}_{\\text{PCR}} = (Z^T Z)^{-1} Z^T y$$\n",
-            "- **Accuracy Metrics (Slide 108)**:  \n",
-            "  $$R^2 = 1 - \\frac{\\text{RSS}}{\\text{TSS}}, \\quad \\text{RMSE} = \\sqrt{\\frac{1}{m}\\sum_{i=1}^m (y_i - \\hat{y}_i)^2}$$"
+            "## 5. Preview / Summary of the Results\n",
+            "\n",
+            "High-level comparison across all predictive models evaluated on the **Training Set (2011–2013)** and the independent **Out-of-Sample Test Set (2014–2015)**."
         ]
     },
     {
@@ -569,33 +566,19 @@ cells = [
         "metadata": {},
         "outputs": [],
         "source": [
-            "def fit_linear_model(X_train_data, y_train_data, X_test_data, y_test_data):\n",
-            "    # Add intercept column (Slide 104, 106)\n",
-            "    X_tr_c = np.column_stack([np.ones(len(X_train_data)), X_train_data])\n",
-            "    X_te_c = np.column_stack([np.ones(len(X_test_data)), X_test_data])\n",
-            "    \n",
-            "    beta = np.linalg.lstsq(X_tr_c, y_train_data, rcond=None)[0]\n",
-            "    \n",
-            "    y_tr_pred = X_tr_c @ beta\n",
-            "    r2_tr = 1 - np.sum((y_train_data - y_tr_pred)**2) / np.sum((y_train_data - np.mean(y_train_data))**2)\n",
-            "    rmse_tr = np.sqrt(np.mean((y_train_data - y_tr_pred)**2))\n",
-            "    \n",
-            "    y_te_pred = X_te_c @ beta\n",
-            "    r2_te = 1 - np.sum((y_test_data - y_te_pred)**2) / np.sum((y_test_data - np.mean(y_test_data))**2)\n",
-            "    rmse_te = np.sqrt(np.mean((y_test_data - y_te_pred)**2))\n",
-            "    \n",
-            "    return beta, (r2_tr, rmse_tr), (r2_te, rmse_te), y_te_pred\n",
-            "\n",
-            "print(\"Regression modeling engine defined.\")"
+            "# Load evaluation summary from run_detailed_analysis.py\n",
+            "df_summary_res = pd.read_csv('figures/summary_results_table.csv') if os.path.exists('figures/summary_results_table.csv') else df_summary\n",
+            "df_summary"
         ]
     },
     {
         "cell_type": "markdown",
         "metadata": {},
         "source": [
-            "### 4.4 Unsupervised Operational Regime Discovery via K-Means and Silhouette\n",
-            "Implementing K-Means and Silhouette Coefficient from **Slides 90–94 & Exercise 3.1**:\n",
-            "$$\\text{SIL}_i = \\frac{b_i - a_i}{\\max(a_i, b_i)}, \\quad \\text{SIL} = \\frac{1}{m}\\sum_{i=1}^m \\text{SIL}_i$$"
+            "## 6. Detailed Results & Diagnostics\n",
+            "\n",
+            "### 6.1 Model Coefficients, Standard Errors and 95% Confidence Intervals\n",
+            "Following **Slide 111 of `DA.pdf`**, standard errors $\\sigma_{\\hat{\\beta}}$ and 95% confidence intervals $[\\hat{\\beta} - 2\\sigma_{\\hat{\\beta}},\\; \\hat{\\beta} + 2\\sigma_{\\hat{\\beta}}]$ are computed to evaluate statistical precision:"
         ]
     },
     {
@@ -604,57 +587,130 @@ cells = [
         "metadata": {},
         "outputs": [],
         "source": [
-            "def run_kmeans(X, k=3, max_iter=50, random_state=42):\n",
-            "    np.random.seed(random_state)\n",
-            "    centroids = X[np.random.choice(len(X), k, replace=False)]\n",
-            "    for _ in range(max_iter):\n",
-            "        dists = np.linalg.norm(X[:, np.newaxis] - centroids, axis=2)\n",
-            "        labels = np.argmin(dists, axis=1)\n",
-            "        new_centroids = np.array([X[labels == j].mean(axis=0) if np.sum(labels == j) > 0 else centroids[j] for j in range(k)])\n",
-            "        if np.allclose(centroids, new_centroids):\n",
-            "            break\n",
-            "        centroids = new_centroids\n",
-            "    return labels, centroids\n",
+            "# Coefficients table for PCR (5 Principal Components for TEY)\n",
+            "pcr_coefs = pd.DataFrame({\n",
+            "    'Parameter': ['Intercept', 'PC1 Loading', 'PC2 Loading', 'PC3 Loading', 'PC4 Loading', 'PC5 Loading'],\n",
+            "    'Estimated Beta': m_tey_pcr['beta'].round(4),\n",
+            "    'Std Error (sigma_beta)': m_tey_pcr['se_beta'].round(4),\n",
+            "    '95% CI Lower': m_tey_pcr['ci'][0].round(4),\n",
+            "    '95% CI Upper': m_tey_pcr['ci'][1].round(4)\n",
+            "})\n",
+            "pcr_coefs"
+        ]
+    },
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "### 6.2 Actual vs. Predicted Visual Comparisons on Out-of-Sample Test Data (2014–2015)"
+        ]
+    },
+    {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "fig, axes = plt.subplots(1, 3, figsize=(16, 5))\n",
             "\n",
-            "def compute_silhouette(X, labels, sample_size=2000, random_state=42):\n",
-            "    np.random.seed(random_state)\n",
-            "    idx = np.random.choice(len(X), sample_size, replace=False)\n",
-            "    X_sub = X[idx]\n",
-            "    lab_sub = labels[idx]\n",
-            "    k = len(np.unique(lab_sub))\n",
-            "    \n",
-            "    sil_values = []\n",
-            "    for i in range(len(X_sub)):\n",
-            "        c_i = lab_sub[i]\n",
-            "        same_cluster_pts = X_sub[lab_sub == c_i]\n",
-            "        a_i = np.mean(np.linalg.norm(same_cluster_pts - X_sub[i], axis=1)) if len(same_cluster_pts) > 1 else 0\n",
-            "        \n",
-            "        b_i = np.inf\n",
-            "        for c in range(k):\n",
-            "            if c != c_i:\n",
-            "                other_pts = X_sub[lab_sub == c]\n",
-            "                if len(other_pts) > 0:\n",
-            "                    b_i = min(b_i, np.mean(np.linalg.norm(other_pts - X_sub[i], axis=1)))\n",
-            "        \n",
-            "        sil_i = (b_i - a_i) / max(a_i, b_i) if max(a_i, b_i) > 0 else 0\n",
-            "        sil_values.append(sil_i)\n",
-            "    return np.mean(sil_values)\n",
+            "# TEY PCR\n",
+            "axes[0].scatter(m_tey_pcr['y_te'], m_tey_pcr['y_te_pred'], color='#296299', alpha=0.3, s=15)\n",
+            "min_t, max_t = min(m_tey_pcr['y_te']), max(m_tey_pcr['y_te'])\n",
+            "axes[0].plot([min_t, max_t], [min_t, max_t], 'r--', linewidth=2, label='Ideal 1:1 Line')\n",
+            "axes[0].set_title(f\"TEY: PCR (5 Components)\\nTest R² = {m_tey_pcr['metrics_te'][0]:.4f} | RMSE = {m_tey_pcr['metrics_te'][1]:.2f} MWh\", fontweight='bold')\n",
+            "axes[0].set_xlabel('Actual Energy Yield TEY (MWh)')\n",
+            "axes[0].set_ylabel('Predicted Energy Yield TEY (MWh)')\n",
+            "axes[0].legend()\n",
             "\n",
-            "# Evaluate K from 2 to 5\n",
-            "k_scores = {}\n",
-            "for k in [2, 3, 4, 5]:\n",
-            "    labs, _ = run_kmeans(X_tr_std, k=k)\n",
-            "    sil = compute_silhouette(X_tr_std, labs)\n",
-            "    k_scores[k] = sil\n",
-            "    print(f\"K = {k}: Mean Silhouette Coefficient = {sil:.4f}\")\n",
+            "# CO Polynomial\n",
+            "axes[1].scatter(m_co_poly['y_te'], m_co_poly['y_te_pred'], color='#e67e22', alpha=0.3, s=15)\n",
+            "min_co, max_co = min(m_co_poly['y_te']), max(m_co_poly['y_te'])\n",
+            "axes[1].plot([min_co, max_co], [min_co, max_co], 'r--', linewidth=2, label='Ideal 1:1 Line')\n",
+            "axes[1].set_title(f\"CO: Polynomial (Degree 2)\\nTest R² = {m_co_poly['metrics_te'][0]:.4f} | RMSE = {m_co_poly['metrics_te'][1]:.2f} mg/m³\", fontweight='bold')\n",
+            "axes[1].set_xlabel('Actual Carbon Monoxide CO (mg/m³)')\n",
+            "axes[1].set_ylabel('Predicted Carbon Monoxide CO (mg/m³)')\n",
+            "axes[1].legend()\n",
             "\n",
-            "# Profile K=3 Operational Regimes\n",
-            "labels_k3, _ = run_kmeans(X_tr_std, k=3)\n",
-            "train_df_clusters = train_df.copy()\n",
-            "train_df_clusters['Operational_Regime'] = labels_k3\n",
-            "regime_profile = train_df_clusters.groupby('Operational_Regime')[['TEY', 'TIT', 'CDP', 'AT', 'CO', 'NOX']].mean().round(2)\n",
-            "regime_profile['Hours (Count)'] = train_df_clusters['Operational_Regime'].value_counts()\n",
-            "regime_profile"
+            "# NOX OLS\n",
+            "axes[2].scatter(m_nox_ols['y_te'], m_nox_ols['y_te_pred'], color='#27ae60', alpha=0.3, s=15)\n",
+            "min_nox, max_nox = min(m_nox_ols['y_te']), max(m_nox_ols['y_te'])\n",
+            "axes[2].plot([min_nox, max_nox], [min_nox, max_nox], 'r--', linewidth=2, label='Ideal 1:1 Line')\n",
+            "axes[2].set_title(f\"NOx: Full OLS\\nTrain R² = {m_nox_ols['metrics_tr'][0]:.4f} | Test RMSE = {m_nox_ols['metrics_te'][1]:.2f} mg/m³\", fontweight='bold')\n",
+            "axes[2].set_xlabel('Actual Nitrogen Oxides NOx (mg/m³)')\n",
+            "axes[2].set_ylabel('Predicted Nitrogen Oxides NOx (mg/m³)')\n",
+            "axes[2].legend()\n",
+            "\n",
+            "plt.tight_layout()\n",
+            "plt.show()"
+        ]
+    },
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "### 6.3 Diagnostic Residual Analysis (Slides 104, 108)"
+        ]
+    },
+    {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "fig, axes = plt.subplots(2, 2, figsize=(14, 9))\n",
+            "\n",
+            "# TEY Residuals vs Predicted\n",
+            "axes[0, 0].scatter(m_tey_pcr['y_te_pred'], m_tey_pcr['res_te'], color='#296299', alpha=0.3, s=15)\n",
+            "axes[0, 0].axhline(0, color='r', linestyle='--', linewidth=1.5)\n",
+            "axes[0, 0].set_title('TEY (PCR): Residuals vs Predicted', fontweight='bold')\n",
+            "axes[0, 0].set_xlabel('Predicted TEY (MWh)')\n",
+            "axes[0, 0].set_ylabel('Residual (Actual - Predicted)')\n",
+            "\n",
+            "# TEY Residual Distribution\n",
+            "sns.histplot(m_tey_pcr['res_te'], kde=True, ax=axes[0, 1], color='#296299', bins=50)\n",
+            "axes[0, 1].axvline(0, color='r', linestyle='--', linewidth=1.5)\n",
+            "axes[0, 1].set_title('TEY (PCR): Residual Error Distribution (Zero-Centered)', fontweight='bold')\n",
+            "axes[0, 1].set_xlabel('Residual Error (MWh)')\n",
+            "\n",
+            "# CO Residuals vs Predicted\n",
+            "axes[1, 0].scatter(m_co_poly['y_te_pred'], m_co_poly['res_te'], color='#e67e22', alpha=0.3, s=15)\n",
+            "axes[1, 0].axhline(0, color='r', linestyle='--', linewidth=1.5)\n",
+            "axes[1, 0].set_title('CO (Poly): Residuals vs Predicted', fontweight='bold')\n",
+            "axes[1, 0].set_xlabel('Predicted CO (mg/m³)')\n",
+            "axes[1, 0].set_ylabel('Residual (Actual - Predicted)')\n",
+            "\n",
+            "# CO Residual Distribution\n",
+            "sns.histplot(m_co_poly['res_te'], kde=True, ax=axes[1, 1], color='#e67e22', bins=50)\n",
+            "axes[1, 1].axvline(0, color='r', linestyle='--', linewidth=1.5)\n",
+            "axes[1, 1].set_title('CO (Poly): Residual Error Distribution', fontweight='bold')\n",
+            "axes[1, 1].set_xlabel('Residual Error (mg/m³)')\n",
+            "\n",
+            "plt.tight_layout()\n",
+            "plt.show()"
+        ]
+    },
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "### 6.4 Cross-Year Temporal Evaluation (2011 to 2015)"
+        ]
+    },
+    {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "yearly_rows = []\n",
+            "for m in models:\n",
+            "    row = {'Model': m['name']}\n",
+            "    for y in [2011, 2012, 2013, 2014, 2015]:\n",
+            "        r2_val, rmse_val = m['yearly'][y]\n",
+            "        row[f'{y} R2'] = round(r2_val, 3)\n",
+            "    yearly_rows.append(row)\n",
+            "df_yearly = pd.DataFrame(yearly_rows)\n",
+            "df_yearly"
         ]
     }
 ]
@@ -679,4 +735,4 @@ notebook_content = {
 with open("gas_turbine_analysis.ipynb", "w", encoding="utf-8") as f:
     json.dump(notebook_content, f, indent=2)
 
-print("gas_turbine_analysis.ipynb updated with Section 4 (Main Analysis Objectives & Methods).")
+print("gas_turbine_analysis.ipynb updated with Section 5 and Section 6.")

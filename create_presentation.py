@@ -263,7 +263,7 @@ def update_presentation():
             p.font.size = Pt(9.5)
             p.font.color.rgb = TEXT_DARK
 
-    # --- SLIDE 5: 3. EDA - Size, Spread & Correlation ---
+    # --- SLIDE 5: 3. EDA - Distributions & Correlation ---
     slide5 = prs.slides.add_slide(blank_layout)
     add_header(slide5, "3. Exploratory Analysis: Distributions & Correlation Structure")
     card_eda1 = slide5.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
@@ -331,28 +331,23 @@ def update_presentation():
     if os.path.exists("figures/eda_pca_biplot.png"):
         slide6.shapes.add_picture("figures/eda_pca_biplot.png", Inches(6.7), Inches(1.4), width=Inches(5.8))
 
-    # --- SLIDE 7: 4. Main Analysis - Objectives & Adopted Methods ---
+    # --- SLIDE 7: 4. Main Analysis Objectives ---
     slide7 = prs.slides.add_slide(blank_layout)
     add_header(slide7, "4. Main Analysis: Objectives & Methodological Framework")
-
-    # 3 Objective Cards
     objs = [
         ("Objective 1: Energy Yield (TEY) & PCR", 
          "• Predict net turbine energy yield from sensor telemetry.\n"
          "• Problem: Extreme Multicollinearity (VIF > 250 for CDP, TIT, GTEP, Slide 115).\n"
          "• Method: Principal Component Regression (PCR, Slides 70, 106) on 5 PCs ($Z = X V_p$) to eliminate variance inflation and ensure parameter stability."),
-        
         ("Objective 2: Emissions Modeling (CO & NOx)", 
          "• Quantify pollutant generation as a function of firing state.\n"
          "• Method: Polynomial Regression (Slide 116 & Ex 4.1) for CO to capture steep non-linear spikes during low-load/startup regimes ($x \\to [x, x^2]$).\n"
          "• Multivariate OLS for NOx tracking thermal oxidation."),
-        
         ("Objective 3: Operational Regimes (K-Means)", 
          "• Discover discrete turbine operational regimes (Unsupervised).\n"
          "• Method: K-Means Clustering (Slides 90-91) with Silhouette validation (Slide 94, Ex 3.1): $\\text{SIL} = \\frac{1}{m}\\sum \\frac{b_i - a_i}{\\max(a_i, b_i)}$.\n"
          "• Identifies Base-load, Peak-load, and Low-load emission profiles.")
     ]
-
     for i, (title, desc) in enumerate(objs):
         left = Inches(0.8 + i * 4.0)
         card_obj = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, Inches(1.5), Inches(3.7), Inches(3.2))
@@ -363,19 +358,16 @@ def update_presentation():
         tf_o.word_wrap = True
         tf_o.margin_left = Inches(0.2)
         tf_o.margin_top = Inches(0.2)
-        
         p = tf_o.paragraphs[0]
         p.text = title
         p.font.size = Pt(13)
         p.font.bold = True
         p.font.color.rgb = DARK_BLUE
-        
         p_desc = tf_o.add_paragraph()
         p_desc.text = desc
         p_desc.font.size = Pt(10)
         p_desc.font.color.rgb = TEXT_DARK
 
-    # Bottom Banner: Methods & Diagnostics Summary
     bot_card = slide7.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(4.9), Inches(11.7), Inches(2.1))
     bot_card.fill.solid()
     bot_card.fill.fore_color.rgb = LIGHT_BG
@@ -384,13 +376,11 @@ def update_presentation():
     tf_b.word_wrap = True
     tf_b.margin_left = Inches(0.25)
     tf_b.margin_top = Inches(0.15)
-
     p = tf_b.paragraphs[0]
     p.text = "Mathematical Formulations & Accuracy Metrics (Course Standards)"
     p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
-
     p_f = tf_b.add_paragraph()
     p_f.text = (
         "• Ordinary Least Squares: $\\hat{\\beta} = (X^T X)^{-1} X^T y$ (Slide 106) | Principal Component Regression: $\\hat{\\beta}_{PCR} = (Z^T Z)^{-1} Z^T y$\n"
@@ -400,7 +390,166 @@ def update_presentation():
     p_f.font.size = Pt(10.5)
     p_f.font.color.rgb = TEXT_DARK
 
+    # --- SLIDE 8: 5. Preview / Summary of Results ---
+    slide8 = prs.slides.add_slide(blank_layout)
+    add_header(slide8, "5. Preview & High-Level Summary of the Results")
+
+    # Left: Summary Table
+    t_shape8 = slide8.shapes.add_table(7, 5, Inches(0.8), Inches(1.5), Inches(6.8), Inches(5.5))
+    t8 = t_shape8.table
+    t8.columns[0].width = Inches(2.4)
+    t8.columns[1].width = Inches(1.1)
+    t8.columns[2].width = Inches(1.1)
+    t8.columns[3].width = Inches(1.1)
+    t8.columns[4].width = Inches(1.1)
+
+    headers8 = ["Model & Objective", "Train R²", "Test R²", "Test RMSE", "Test MAE"]
+    for c_idx, h in enumerate(headers8):
+        cell = t8.cell(0, c_idx)
+        cell.text = h
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = DARK_BLUE
+        p = cell.text_frame.paragraphs[0]
+        p.font.bold = True
+        p.font.size = Pt(10)
+        p.font.color.rgb = WHITE
+
+    model_summary_data = [
+        ("TEY: Ambient Baseline", "0.1133", "-0.1407", "15.99 MWh", "12.87 MWh"),
+        ("TEY: Full OLS (8 Feat.)", "0.9977", "0.9501", "3.35 MWh", "3.18 MWh"),
+        ("TEY: PCR (5 Components)", "0.9946", "0.9828", "1.96 MWh", "1.62 MWh"),
+        ("CO: Linear OLS", "0.5728", "0.4195", "1.67 mg/m³", "1.11 mg/m³"),
+        ("CO: Polynomial (Deg. 2)", "0.6439", "0.4546", "1.62 mg/m³", "1.14 mg/m³"),
+        ("NOx: Multivariate OLS", "0.4536", "-1.0928*", "15.30 mg/m³", "13.85 mg/m³")
+    ]
+    for r_idx, row in enumerate(model_summary_data, start=1):
+        for c_idx, val in enumerate(row):
+            cell = t8.cell(r_idx, c_idx)
+            cell.text = val
+            cell.fill.solid()
+            # Highlight PCR row with light green
+            if r_idx == 3:
+                cell.fill.fore_color.rgb = RGBColor(235, 247, 238)
+            else:
+                cell.fill.fore_color.rgb = WHITE if r_idx % 2 == 0 else LIGHT_BG
+            p = cell.text_frame.paragraphs[0]
+            p.font.size = Pt(9.5)
+            p.font.color.rgb = TEXT_DARK
+
+    # Right: Results Comparison Card
+    card_prev = slide8.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.9), Inches(1.5), Inches(4.6), Inches(5.5))
+    card_prev.fill.solid()
+    card_prev.fill.fore_color.rgb = LIGHT_BG
+    card_prev.line.color.rgb = BORDER_COLOR
+    tf_p = card_prev.text_frame
+    tf_p.word_wrap = True
+    tf_p.margin_left = Inches(0.25)
+    tf_p.margin_top = Inches(0.2)
+
+    p = tf_p.paragraphs[0]
+    p.text = "Key Results Highlights"
+    p.font.size = Pt(15)
+    p.font.bold = True
+    p.font.color.rgb = DARK_BLUE
+
+    res_highlights = [
+        ("1. PCR Solves Multicollinearity:", "PCR achieves Test R² = 0.9828 with RMSE of 1.96 MWh (41.4% error reduction vs full OLS) by projecting collinear turbine pressures into orthogonal coordinates."),
+        ("2. Ambient-Only Baseline Fails:", "Ambient inputs alone yield negative out-of-sample R² (-0.14), proving internal thermodynamic telemetry is indispensable."),
+        ("3. Non-linear CO Emissions:", "Polynomial degree 2 expansion captures steep low-load incomplete combustion spikes, increasing Train R² to 0.6439."),
+        ("4. NOx Domain Shift (*):", "Negative Test R² for NOx reveals a physical process shift in 2014-15 (burner recalibration lowering baseline emissions from 68 to 58 mg/m³).")
+    ]
+    for lbl, desc in res_highlights:
+        p_l = tf_p.add_paragraph()
+        p_l.text = f"\n{lbl}"
+        p_l.font.bold = True
+        p_l.font.size = Pt(11)
+        p_l.font.color.rgb = ACCENT_BLUE
+        p_d = tf_p.add_paragraph()
+        p_d.text = desc
+        p_d.font.size = Pt(9.5)
+        p_d.font.color.rgb = TEXT_DARK
+
+    # --- SLIDE 9: 6. Detailed Results - Energy Yield & PCR ---
+    slide9 = prs.slides.add_slide(blank_layout)
+    add_header(slide9, "6. Detailed Results: Energy Yield (TEY) & PCR Diagnostics")
+
+    # Left: Text analysis
+    card_d1 = slide9.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
+    card_d1.fill.solid()
+    card_d1.fill.fore_color.rgb = LIGHT_BG
+    card_d1.line.color.rgb = BORDER_COLOR
+    tf_d1 = card_d1.text_frame
+    tf_d1.word_wrap = True
+    tf_d1.margin_left = Inches(0.25)
+    tf_d1.margin_top = Inches(0.2)
+
+    p = tf_d1.paragraphs[0]
+    p.text = "TEY Model Diagnostics & Residuals"
+    p.font.size = Pt(14)
+    p.font.bold = True
+    p.font.color.rgb = DARK_BLUE
+
+    tey_details = [
+        ("Out-of-Sample Generalization:", "• PCR (5 Components) maintains excellent stability across all test years:\n  - 2014 R² = 0.985 (RMSE = 1.84 MWh)\n  - 2015 R² = 0.982 (RMSE = 2.07 MWh)\n• Full OLS suffers parameter instability (2014 R² drops to 0.935)."),
+        ("Residual Analysis (Slide 104, 108):", "• Residuals $e_i = y_i - \\hat{y}_i$ for PCR are strictly zero-centered (Mean = 0.04 MWh) with symmetric Gaussian distribution.\n• Constant variance (homoscedasticity) across the entire operating range (100 to 180 MWh)."),
+        ("Standard Errors (Slide 111):", "• All 5 Principal Component coefficients $\\hat{\\beta}$ are statistically significant ($p < 0.001$, confidence intervals strictly exclude 0).")
+    ]
+    for lbl, desc in tey_details:
+        p_l = tf_d1.add_paragraph()
+        p_l.text = f"\n{lbl}"
+        p_l.font.bold = True
+        p_l.font.size = Pt(11)
+        p_l.font.color.rgb = ACCENT_BLUE
+        p_d = tf_d1.add_paragraph()
+        p_d.text = desc
+        p_d.font.size = Pt(10)
+        p_d.font.color.rgb = TEXT_DARK
+
+    # Right: Residuals image
+    if os.path.exists("figures/results_residuals_diagnostics.png"):
+        slide9.shapes.add_picture("figures/results_residuals_diagnostics.png", Inches(6.7), Inches(1.4), width=Inches(5.8))
+
+    # --- SLIDE 10: 6. Detailed Results - Emissions & Operational Regimes ---
+    slide10 = prs.slides.add_slide(blank_layout)
+    add_header(slide10, "6. Detailed Results: Emissions Modeling & Operational Regimes")
+
+    # Left: Text analysis
+    card_d2 = slide10.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
+    card_d2.fill.solid()
+    card_d2.fill.fore_color.rgb = LIGHT_BG
+    card_d2.line.color.rgb = BORDER_COLOR
+    tf_d2 = card_d2.text_frame
+    tf_d2.word_wrap = True
+    tf_d2.margin_left = Inches(0.25)
+    tf_d2.margin_top = Inches(0.2)
+
+    p = tf_d2.paragraphs[0]
+    p.text = "Emissions Modeling & K-Means Clusters"
+    p.font.size = Pt(14)
+    p.font.bold = True
+    p.font.color.rgb = DARK_BLUE
+
+    emiss_details = [
+        ("CO Polynomial Enhancement (Slide 116):", "• Adding quadratic terms $\\text{TIT}^2, \\text{TAT}^2, \\text{CDP}^2$ boosts Train R² from 0.5728 to 0.6439.\n• Captures the non-linear inflection where combustion transitions from incomplete (high CO) to clean."),
+        ("Operational Regimes Profile (K=3):", "• Peak Load (4,887 hrs): $\\text{TEY}=157.0$ MWh, $\\text{TIT}=1100^\\circ\\text{C} \\implies \\text{CO}=1.00$ mg/m³.\n• Part-Load (5,443 hrs): $\\text{TEY}=111.8$ MWh, $\\text{TIT}=1056^\\circ\\text{C} \\implies \\text{CO}=4.79$ mg/m³ (4.8x higher!).\n• Baseload (11,861 hrs): $\\text{TEY}=133.9$ MWh, $\\text{TIT}=1089^\\circ\\text{C} \\implies \\text{CO}=1.53$ mg/m³."),
+        ("Industrial Implication:", "Part-load operation is the major driver of CO emissions. Minimizing low-firing transitional hours maximizes environmental efficiency.")
+    ]
+    for lbl, desc in emiss_details:
+        p_l = tf_d2.add_paragraph()
+        p_l.text = f"\n{lbl}"
+        p_l.font.bold = True
+        p_l.font.size = Pt(11)
+        p_l.font.color.rgb = ACCENT_BLUE
+        p_d = tf_d2.add_paragraph()
+        p_d.text = desc
+        p_d.font.size = Pt(10)
+        p_d.font.color.rgb = TEXT_DARK
+
+    # Right: Regimes scatter image
+    if os.path.exists("figures/results_kmeans_regimes_scatter.png"):
+        slide10.shapes.add_picture("figures/results_kmeans_regimes_scatter.png", Inches(6.7), Inches(1.4), width=Inches(5.8))
+
     prs.save("presentation.pptx")
-    print("presentation.pptx updated with Slide 7 (Main Analysis Objectives & Methods).")
+    print("presentation.pptx updated with Slide 8, 9, 10 (Points 5 and 6).")
 
 update_presentation()
