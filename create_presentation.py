@@ -12,14 +12,19 @@ def update_presentation():
     prs.slide_height = Inches(7.5)
     blank_layout = prs.slide_layouts[6]
 
-    DARK_BLUE = RGBColor(16, 37, 66)
-    ACCENT_BLUE = RGBColor(41, 98, 153)
-    LIGHT_BG = RGBColor(248, 249, 250)
-    TEXT_DARK = RGBColor(33, 37, 41)
+    # Harmonious Palette
+    DARK_BLUE = RGBColor(16, 37, 66)      # Primary Dark #102542
+    ACCENT_TEAL = RGBColor(23, 162, 184)  # Teal Accent
+    ACCENT_BLUE = RGBColor(41, 98, 153)   # Accent Blue
+    LIGHT_BG = RGBColor(248, 249, 250)    # Soft Gray Card
+    TEXT_DARK = RGBColor(33, 37, 41)      # Body text
+    TEXT_MUTED = RGBColor(108, 117, 125)  # Muted subtitles
     WHITE = RGBColor(255, 255, 255)
     BORDER_COLOR = RGBColor(220, 225, 230)
+    GREEN_CARD = RGBColor(235, 247, 238)
+    GREEN_TEXT = RGBColor(40, 167, 69)
 
-    def add_header(slide, title_text, category_text="DATA ANALYTICS PROJECT WORK"):
+    def add_header(slide, title_text, phase_text="DATA ANALYTICS PROJECT WORK"):
         header_box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(1.2))
         header_box.fill.solid()
         header_box.fill.fore_color.rgb = DARK_BLUE
@@ -31,10 +36,10 @@ def update_presentation():
         tf_cat.margin_top = Inches(0.15)
         
         p0 = tf_cat.paragraphs[0]
-        p0.text = category_text.upper()
+        p0.text = phase_text.upper()
         p0.font.size = Pt(11)
         p0.font.bold = True
-        p0.font.color.rgb = RGBColor(180, 205, 235)
+        p0.font.color.rgb = RGBColor(180, 215, 235)
         
         p1 = tf_cat.add_paragraph()
         p1.text = title_text
@@ -42,33 +47,37 @@ def update_presentation():
         p1.font.bold = True
         p1.font.color.rgb = WHITE
 
-    # --- SLIDE 1: Title ---
+    # --- SLIDE 1: Title Slide ---
     slide1 = prs.slides.add_slide(blank_layout)
     bg1 = slide1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(7.5))
     bg1.fill.solid()
     bg1.fill.fore_color.rgb = DARK_BLUE
     bg1.line.color.rgb = DARK_BLUE
 
-    tbox = slide1.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(11.333), Inches(3.5))
-    tf1 = tbox.text_frame
+    tbox1 = slide1.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(11.333), Inches(4.0))
+    tf1 = tbox1.text_frame
     tf1.word_wrap = True
+    
     p = tf1.paragraphs[0]
     p.text = "Data Analytics & Predictive Modeling"
     p.font.size = Pt(36)
     p.font.bold = True
     p.font.color.rgb = WHITE
+    
     p2 = tf1.add_paragraph()
     p2.text = "Flue Gas Emissions (CO, NOx) and Energy Yield in Gas Turbines"
     p2.font.size = Pt(22)
-    p2.font.color.rgb = RGBColor(180, 205, 235)
+    p2.font.color.rgb = RGBColor(180, 215, 235)
+    
     p3 = tf1.add_paragraph()
-    p3.text = "\nCourse: Data Analytics (and Data Driven Decision) — University of L'Aquila\nBased on Course Methodologies and 2011–2015 Hourly Sensor Data"
+    p3.text = "\nCourse: Data Analytics (and Data Driven Decision) — University of L'Aquila\nBased on Multi-Year Hourly Telemetry (36,733 records) and Course Methodologies"
     p3.font.size = Pt(14)
     p3.font.color.rgb = RGBColor(200, 215, 230)
 
-    # --- SLIDE 2: Workflow ---
+    # --- SLIDE 2: Project Workflow & 7 Steps ---
     slide2 = prs.slides.add_slide(blank_layout)
-    add_header(slide2, "Project Workflow & Guidelines Structure")
+    add_header(slide2, "Project Workflow & Guidelines Structure", "METHODOLOGICAL ROADMAP")
+    
     steps = [
         ("1. Description of Dataset", "Data origin, 11 sensor variables, 36,733 hourly observations, train/test split protocol."),
         ("2. Data Cleaning & Validation", "Verification of missing values, range validation, physical plausibility check, standard scaling."),
@@ -101,9 +110,10 @@ def update_presentation():
         p_desc.font.size = Pt(11)
         p_desc.font.color.rgb = TEXT_DARK
 
-    # --- SLIDE 3: 1. Description of Dataset ---
+    # --- SLIDE 3: 1. Description of the Dataset ---
     slide3 = prs.slides.add_slide(blank_layout)
-    add_header(slide3, "1. Description of the Dataset & Sensor Features")
+    add_header(slide3, "1. Description of the Dataset & Sensor Features", "PHASE 1: DATASET PROFILING")
+    
     card_left = slide3.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.5), Inches(4.0), Inches(5.5))
     card_left.fill.solid()
     card_left.fill.fore_color.rgb = LIGHT_BG
@@ -171,9 +181,9 @@ def update_presentation():
             p.font.size = Pt(10)
             p.font.color.rgb = TEXT_DARK
 
-    # --- SLIDE 4: 2. Data Cleaning ---
+    # --- SLIDE 4: 2. Data Cleaning & Preprocessing ---
     slide4 = prs.slides.add_slide(blank_layout)
-    add_header(slide4, "2. Data Cleaning, Quality Validation & Preprocessing")
+    add_header(slide4, "2. Data Cleaning, Quality Validation & Preprocessing", "PHASE 1: DATA PREPARATION")
     card_c1 = slide4.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.5), Inches(3.7), Inches(2.5))
     card_c1.fill.solid()
     card_c1.fill.fore_color.rgb = LIGHT_BG
@@ -265,7 +275,7 @@ def update_presentation():
 
     # --- SLIDE 5: 3. EDA - Distributions & Correlation ---
     slide5 = prs.slides.add_slide(blank_layout)
-    add_header(slide5, "3. Exploratory Analysis: Distributions & Correlation Structure")
+    add_header(slide5, "3. Exploratory Analysis: Distributions & Correlation Structure", "PHASE 2: EXPLORATORY DATA ANALYSIS")
     card_eda1 = slide5.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
     card_eda1.fill.solid()
     card_eda1.fill.fore_color.rgb = LIGHT_BG
@@ -299,7 +309,7 @@ def update_presentation():
 
     # --- SLIDE 6: 3. EDA - PCA & Physical Insights ---
     slide6 = prs.slides.add_slide(blank_layout)
-    add_header(slide6, "3. Exploratory Analysis: PCA Dimensionality Reduction & Biplot")
+    add_header(slide6, "3. Exploratory Analysis: PCA Dimensionality Reduction & Biplot", "PHASE 2: UNSUPERVISED PCA")
     card_pca = slide6.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
     card_pca.fill.solid()
     card_pca.fill.fore_color.rgb = LIGHT_BG
@@ -333,7 +343,7 @@ def update_presentation():
 
     # --- SLIDE 7: 4. Main Analysis Objectives ---
     slide7 = prs.slides.add_slide(blank_layout)
-    add_header(slide7, "4. Main Analysis: Objectives & Methodological Framework")
+    add_header(slide7, "4. Main Analysis: Objectives & Methodological Framework", "PHASE 3: METHODOLOGICAL FRAMEWORK")
     objs = [
         ("Objective 1: Energy Yield (TEY) & PCR", 
          "• Predict net turbine energy yield from sensor telemetry.\n"
@@ -390,19 +400,56 @@ def update_presentation():
     p_f.font.size = Pt(10.5)
     p_f.font.color.rgb = TEXT_DARK
 
-    # --- SLIDE 8: 5. Preview / Summary of Results ---
+    # --- SLIDE 8: 5. Preview & Summary of Results (WITH BIG STAT CALLOUTS) ---
     slide8 = prs.slides.add_slide(blank_layout)
-    add_header(slide8, "5. Preview & High-Level Summary of the Results")
+    add_header(slide8, "5. Preview & High-Level Summary of the Results", "PHASE 4: RESULTS SYNTHESIS")
 
-    t_shape8 = slide8.shapes.add_table(7, 5, Inches(0.8), Inches(1.5), Inches(6.8), Inches(5.5))
+    # Top 4 KPI Stat Callout Cards
+    kpis = [
+        ("98.3%", "Best Test Accuracy (R²)", "Principal Component Regression (PCR)"),
+        ("1.96 MWh", "Out-of-Sample RMSE", "Precise energy yield estimation"),
+        ("-41.4%", "Error Reduction vs OLS", "Multicollinearity elimination"),
+        ("3 Regimes", "Operational Clusters", "Peak, Baseload & Part-Load (K-Means)")
+    ]
+    for i, (val, lbl, sub) in enumerate(kpis):
+        left = Inches(0.8 + i * 3.0)
+        card_kpi = slide8.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, Inches(1.4), Inches(2.75), Inches(1.6))
+        card_kpi.fill.solid()
+        card_kpi.fill.fore_color.rgb = GREEN_CARD if i == 0 else LIGHT_BG
+        card_kpi.line.color.rgb = GREEN_TEXT if i == 0 else BORDER_COLOR
+        
+        tf_k = card_kpi.text_frame
+        tf_k.word_wrap = True
+        tf_k.margin_left = Inches(0.15)
+        tf_k.margin_top = Inches(0.12)
+        
+        p = tf_k.paragraphs[0]
+        p.text = val
+        p.font.size = Pt(24)
+        p.font.bold = True
+        p.font.color.rgb = GREEN_TEXT if i == 0 else DARK_BLUE
+        
+        p_l = tf_k.add_paragraph()
+        p_l.text = lbl
+        p_l.font.size = Pt(10.5)
+        p_l.font.bold = True
+        p_l.font.color.rgb = TEXT_DARK
+        
+        p_s = tf_k.add_paragraph()
+        p_s.text = sub
+        p_s.font.size = Pt(9)
+        p_s.font.color.rgb = TEXT_MUTED
+
+    # Bottom Master Table
+    t_shape8 = slide8.shapes.add_table(7, 5, Inches(0.8), Inches(3.2), Inches(11.7), Inches(3.8))
     t8 = t_shape8.table
-    t8.columns[0].width = Inches(2.4)
-    t8.columns[1].width = Inches(1.1)
-    t8.columns[2].width = Inches(1.1)
-    t8.columns[3].width = Inches(1.1)
-    t8.columns[4].width = Inches(1.1)
+    t8.columns[0].width = Inches(3.7)
+    t8.columns[1].width = Inches(2.0)
+    t8.columns[2].width = Inches(2.0)
+    t8.columns[3].width = Inches(2.0)
+    t8.columns[4].width = Inches(2.0)
 
-    headers8 = ["Model & Objective", "Train R²", "Test R²", "Test RMSE", "Test MAE"]
+    headers8 = ["Model & Objective Target", "Train R² (2011–13)", "Test R² (2014–15)", "Test RMSE", "Test MAE"]
     for c_idx, h in enumerate(headers8):
         cell = t8.cell(0, c_idx)
         cell.text = h
@@ -410,16 +457,16 @@ def update_presentation():
         cell.fill.fore_color.rgb = DARK_BLUE
         p = cell.text_frame.paragraphs[0]
         p.font.bold = True
-        p.font.size = Pt(10)
+        p.font.size = Pt(11)
         p.font.color.rgb = WHITE
 
     model_summary_data = [
-        ("TEY: Ambient Baseline", "0.1133", "-0.1407", "15.99 MWh", "12.87 MWh"),
-        ("TEY: Full OLS (8 Feat.)", "0.9977", "0.9501", "3.35 MWh", "3.18 MWh"),
-        ("TEY: PCR (5 Components)", "0.9946", "0.9828", "1.96 MWh", "1.62 MWh"),
-        ("CO: Linear OLS", "0.5728", "0.4195", "1.67 mg/m³", "1.11 mg/m³"),
-        ("CO: Polynomial (Deg. 2)", "0.6439", "0.4546", "1.62 mg/m³", "1.14 mg/m³"),
-        ("NOx: Multivariate OLS", "0.4536", "-1.0928*", "15.30 mg/m³", "13.85 mg/m³")
+        ("TEY: Ambient Baseline (AT, AP, AH)", "0.1133", "-0.1407", "15.996 MWh", "12.868 MWh"),
+        ("TEY: Full Multivariate OLS (8 Features)", "0.9977", "0.9501", "3.346 MWh", "3.176 MWh"),
+        ("TEY: PCR (5 Principal Components)", "0.9946", "0.9828", "1.963 MWh", "1.618 MWh"),
+        ("CO: Linear Multivariate OLS", "0.5728", "0.4195", "1.668 mg/m³", "1.110 mg/m³"),
+        ("CO: Polynomial (Degree 2, Slide 116)", "0.6439", "0.4546", "1.617 mg/m³", "1.138 mg/m³"),
+        ("NOx: Multivariate OLS", "0.4536", "-1.0928*", "15.301 mg/m³", "13.851 mg/m³")
     ]
     for r_idx, row in enumerate(model_summary_data, start=1):
         for c_idx, val in enumerate(row):
@@ -427,47 +474,20 @@ def update_presentation():
             cell.text = val
             cell.fill.solid()
             if r_idx == 3:
-                cell.fill.fore_color.rgb = RGBColor(235, 247, 238)
+                cell.fill.fore_color.rgb = GREEN_CARD
             else:
                 cell.fill.fore_color.rgb = WHITE if r_idx % 2 == 0 else LIGHT_BG
             p = cell.text_frame.paragraphs[0]
-            p.font.size = Pt(9.5)
-            p.font.color.rgb = TEXT_DARK
-
-    card_prev = slide8.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.9), Inches(1.5), Inches(4.6), Inches(5.5))
-    card_prev.fill.solid()
-    card_prev.fill.fore_color.rgb = LIGHT_BG
-    card_prev.line.color.rgb = BORDER_COLOR
-    tf_p = card_prev.text_frame
-    tf_p.word_wrap = True
-    tf_p.margin_left = Inches(0.25)
-    tf_p.margin_top = Inches(0.2)
-    p = tf_p.paragraphs[0]
-    p.text = "Key Results Highlights"
-    p.font.size = Pt(15)
-    p.font.bold = True
-    p.font.color.rgb = DARK_BLUE
-
-    res_highlights = [
-        ("1. PCR Solves Multicollinearity:", "PCR achieves Test R² = 0.9828 with RMSE of 1.96 MWh (41.4% error reduction vs full OLS) by projecting collinear turbine pressures into orthogonal coordinates."),
-        ("2. Ambient-Only Baseline Fails:", "Ambient inputs alone yield negative out-of-sample R² (-0.14), proving internal thermodynamic telemetry is indispensable."),
-        ("3. Non-linear CO Emissions:", "Polynomial degree 2 expansion captures steep low-load incomplete combustion spikes, increasing Train R² to 0.6439."),
-        ("4. NOx Domain Shift (*):", "Negative Test R² for NOx reveals a physical process shift in 2014-15 (burner recalibration lowering baseline emissions from 68 to 58 mg/m³).")
-    ]
-    for lbl, desc in res_highlights:
-        p_l = tf_p.add_paragraph()
-        p_l.text = f"\n{lbl}"
-        p_l.font.bold = True
-        p_l.font.size = Pt(11)
-        p_l.font.color.rgb = ACCENT_BLUE
-        p_d = tf_p.add_paragraph()
-        p_d.text = desc
-        p_d.font.size = Pt(9.5)
-        p_d.font.color.rgb = TEXT_DARK
+            p.font.size = Pt(10)
+            if r_idx == 3:
+                p.font.bold = True
+                p.font.color.rgb = DARK_BLUE
+            else:
+                p.font.color.rgb = TEXT_DARK
 
     # --- SLIDE 9: 6. Detailed Results - Energy Yield & PCR ---
     slide9 = prs.slides.add_slide(blank_layout)
-    add_header(slide9, "6. Detailed Results: Energy Yield (TEY) & PCR Diagnostics")
+    add_header(slide9, "6. Detailed Results: Energy Yield (TEY) & PCR Diagnostics", "PHASE 4: IN-DEPTH MODEL EVALUATION")
     card_d1 = slide9.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
     card_d1.fill.solid()
     card_d1.fill.fore_color.rgb = LIGHT_BG
@@ -476,11 +496,13 @@ def update_presentation():
     tf_d1.word_wrap = True
     tf_d1.margin_left = Inches(0.25)
     tf_d1.margin_top = Inches(0.2)
+
     p = tf_d1.paragraphs[0]
     p.text = "TEY Model Diagnostics & Residuals"
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
+
     tey_details = [
         ("Out-of-Sample Generalization:", "• PCR (5 Components) maintains excellent stability across all test years:\n  - 2014 R² = 0.985 (RMSE = 1.84 MWh)\n  - 2015 R² = 0.982 (RMSE = 2.07 MWh)\n• Full OLS suffers parameter instability (2014 R² drops to 0.935)."),
         ("Residual Analysis (Slide 104, 108):", "• Residuals $e_i = y_i - \\hat{y}_i$ for PCR are strictly zero-centered (Mean = 0.04 MWh) with symmetric Gaussian distribution.\n• Constant variance (homoscedasticity) across the entire operating range (100 to 180 MWh)."),
@@ -501,7 +523,7 @@ def update_presentation():
 
     # --- SLIDE 10: 6. Detailed Results - Emissions & Operational Regimes ---
     slide10 = prs.slides.add_slide(blank_layout)
-    add_header(slide10, "6. Detailed Results: Emissions Modeling & Operational Regimes")
+    add_header(slide10, "6. Detailed Results: Emissions Modeling & Operational Regimes", "PHASE 4: IN-DEPTH MODEL EVALUATION")
     card_d2 = slide10.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
     card_d2.fill.solid()
     card_d2.fill.fore_color.rgb = LIGHT_BG
@@ -510,11 +532,13 @@ def update_presentation():
     tf_d2.word_wrap = True
     tf_d2.margin_left = Inches(0.25)
     tf_d2.margin_top = Inches(0.2)
+
     p = tf_d2.paragraphs[0]
     p.text = "Emissions Modeling & K-Means Clusters"
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
+
     emiss_details = [
         ("CO Polynomial Enhancement (Slide 116):", "• Adding quadratic terms $\\text{TIT}^2, \\text{TAT}^2, \\text{CDP}^2$ boosts Train R² from 0.5728 to 0.6439.\n• Captures the non-linear inflection where combustion transitions from incomplete (high CO) to clean."),
         ("Operational Regimes Profile (K=3):", "• Peak Load (4,887 hrs): $\\text{TEY}=157.0$ MWh, $\\text{TIT}=1100^\\circ\\text{C} \\implies \\text{CO}=1.00$ mg/m³.\n• Part-Load (5,443 hrs): $\\text{TEY}=111.8$ MWh, $\\text{TIT}=1056^\\circ\\text{C} \\implies \\text{CO}=4.79$ mg/m³ (4.8x higher!).\n• Baseload (11,861 hrs): $\\text{TEY}=133.9$ MWh, $\\text{TIT}=1089^\\circ\\text{C} \\implies \\text{CO}=1.53$ mg/m³."),
@@ -535,26 +559,21 @@ def update_presentation():
 
     # --- SLIDE 11: 7. Conclusions & Industrial Insights ---
     slide11 = prs.slides.add_slide(blank_layout)
-    add_header(slide11, "7. Conclusions & Engineering Recommendations")
-
-    # 3 Conclusion Cards
+    add_header(slide11, "7. Conclusions & Engineering Recommendations", "PHASE 5: STRATEGIC INSIGHTS")
     concl_cards = [
         ("1. Methodological Justifications", 
          "• Multicollinearity: VIF > 250 proved that raw sensor OLS is unstable. PCR with 5 orthogonal components achieved optimal generalization (Test R² = 0.9828).\n"
          "• Non-linear Physics: CO combustion follows non-linear thermal kinetics; degree-2 polynomial expansion resolved the inflection point.\n"
          "• Unsupervised Regimes: K-Means (K=3) confirmed distinct thermodynamic regimes without labeled training data."),
-        
         ("2. Operational Emission Control", 
          "• Avoid Low Firing Regimes: Part-load operation below 1070°C firing produces 4.8x higher CO emissions.\n"
          "• Peak Load Cleanliness: Operating at peak load (TIT ~1100°C) maximizes power yield (157 MWh) and minimizes CO (1.0 mg/m³).\n"
          "• Ambient Weather Compensation: Ambient temperature penalizes turbine yield (-0.58 correlation), justifying inlet air chilling systems during summer."),
-        
         ("3. Digital Twin & Deployment", 
          "• Real-Time Monitoring: The lightweight 5-component PCR model can run in real-time on edge turbine PLCs for anomaly detection.\n"
          "• Sensor Redundancy: High collinearity allows synthetic sensor estimation if a pressure transducer fails in operation.\n"
          "• Regulatory Compliance: Predictive emission models enable preemptive flue gas compliance adjustments.")
     ]
-
     for i, (title, desc) in enumerate(concl_cards):
         left = Inches(0.8 + i * 4.0)
         card_c = slide11.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, Inches(1.5), Inches(3.7), Inches(5.5))
@@ -565,13 +584,11 @@ def update_presentation():
         tf_c.word_wrap = True
         tf_c.margin_left = Inches(0.25)
         tf_c.margin_top = Inches(0.2)
-        
         p = tf_c.paragraphs[0]
         p.text = title
         p.font.size = Pt(14)
         p.font.bold = True
         p.font.color.rgb = DARK_BLUE
-        
         p_desc = tf_c.add_paragraph()
         p_desc.text = f"\n{desc}"
         p_desc.font.size = Pt(10.5)
@@ -587,7 +604,6 @@ def update_presentation():
     tbox12 = slide12.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(11.333), Inches(4.0))
     tf12 = tbox12.text_frame
     tf12.word_wrap = True
-    
     p = tf12.paragraphs[0]
     p.text = "Thank You!"
     p.font.size = Pt(40)
@@ -597,7 +613,7 @@ def update_presentation():
     p2 = tf12.add_paragraph()
     p2.text = "Questions & Technical Discussion\n"
     p2.font.size = Pt(22)
-    p2.font.color.rgb = RGBColor(180, 205, 235)
+    p2.font.color.rgb = RGBColor(180, 215, 235)
 
     p3 = tf12.add_paragraph()
     p3.text = (
@@ -609,6 +625,6 @@ def update_presentation():
     p3.font.color.rgb = RGBColor(210, 225, 240)
 
     prs.save("presentation.pptx")
-    print("presentation.pptx updated with complete 12 slides (Points 1 to 7).")
+    print("presentation.pptx updated cleanly (12 slides).")
 
 update_presentation()
