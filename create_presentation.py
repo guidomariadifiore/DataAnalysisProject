@@ -394,7 +394,6 @@ def update_presentation():
     slide8 = prs.slides.add_slide(blank_layout)
     add_header(slide8, "5. Preview & High-Level Summary of the Results")
 
-    # Left: Summary Table
     t_shape8 = slide8.shapes.add_table(7, 5, Inches(0.8), Inches(1.5), Inches(6.8), Inches(5.5))
     t8 = t_shape8.table
     t8.columns[0].width = Inches(2.4)
@@ -427,7 +426,6 @@ def update_presentation():
             cell = t8.cell(r_idx, c_idx)
             cell.text = val
             cell.fill.solid()
-            # Highlight PCR row with light green
             if r_idx == 3:
                 cell.fill.fore_color.rgb = RGBColor(235, 247, 238)
             else:
@@ -436,7 +434,6 @@ def update_presentation():
             p.font.size = Pt(9.5)
             p.font.color.rgb = TEXT_DARK
 
-    # Right: Results Comparison Card
     card_prev = slide8.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(7.9), Inches(1.5), Inches(4.6), Inches(5.5))
     card_prev.fill.solid()
     card_prev.fill.fore_color.rgb = LIGHT_BG
@@ -445,7 +442,6 @@ def update_presentation():
     tf_p.word_wrap = True
     tf_p.margin_left = Inches(0.25)
     tf_p.margin_top = Inches(0.2)
-
     p = tf_p.paragraphs[0]
     p.text = "Key Results Highlights"
     p.font.size = Pt(15)
@@ -472,8 +468,6 @@ def update_presentation():
     # --- SLIDE 9: 6. Detailed Results - Energy Yield & PCR ---
     slide9 = prs.slides.add_slide(blank_layout)
     add_header(slide9, "6. Detailed Results: Energy Yield (TEY) & PCR Diagnostics")
-
-    # Left: Text analysis
     card_d1 = slide9.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
     card_d1.fill.solid()
     card_d1.fill.fore_color.rgb = LIGHT_BG
@@ -482,13 +476,11 @@ def update_presentation():
     tf_d1.word_wrap = True
     tf_d1.margin_left = Inches(0.25)
     tf_d1.margin_top = Inches(0.2)
-
     p = tf_d1.paragraphs[0]
     p.text = "TEY Model Diagnostics & Residuals"
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
-
     tey_details = [
         ("Out-of-Sample Generalization:", "• PCR (5 Components) maintains excellent stability across all test years:\n  - 2014 R² = 0.985 (RMSE = 1.84 MWh)\n  - 2015 R² = 0.982 (RMSE = 2.07 MWh)\n• Full OLS suffers parameter instability (2014 R² drops to 0.935)."),
         ("Residual Analysis (Slide 104, 108):", "• Residuals $e_i = y_i - \\hat{y}_i$ for PCR are strictly zero-centered (Mean = 0.04 MWh) with symmetric Gaussian distribution.\n• Constant variance (homoscedasticity) across the entire operating range (100 to 180 MWh)."),
@@ -504,16 +496,12 @@ def update_presentation():
         p_d.text = desc
         p_d.font.size = Pt(10)
         p_d.font.color.rgb = TEXT_DARK
-
-    # Right: Residuals image
     if os.path.exists("figures/results_residuals_diagnostics.png"):
         slide9.shapes.add_picture("figures/results_residuals_diagnostics.png", Inches(6.7), Inches(1.4), width=Inches(5.8))
 
     # --- SLIDE 10: 6. Detailed Results - Emissions & Operational Regimes ---
     slide10 = prs.slides.add_slide(blank_layout)
     add_header(slide10, "6. Detailed Results: Emissions Modeling & Operational Regimes")
-
-    # Left: Text analysis
     card_d2 = slide10.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.4), Inches(5.6), Inches(5.6))
     card_d2.fill.solid()
     card_d2.fill.fore_color.rgb = LIGHT_BG
@@ -522,13 +510,11 @@ def update_presentation():
     tf_d2.word_wrap = True
     tf_d2.margin_left = Inches(0.25)
     tf_d2.margin_top = Inches(0.2)
-
     p = tf_d2.paragraphs[0]
     p.text = "Emissions Modeling & K-Means Clusters"
     p.font.size = Pt(14)
     p.font.bold = True
     p.font.color.rgb = DARK_BLUE
-
     emiss_details = [
         ("CO Polynomial Enhancement (Slide 116):", "• Adding quadratic terms $\\text{TIT}^2, \\text{TAT}^2, \\text{CDP}^2$ boosts Train R² from 0.5728 to 0.6439.\n• Captures the non-linear inflection where combustion transitions from incomplete (high CO) to clean."),
         ("Operational Regimes Profile (K=3):", "• Peak Load (4,887 hrs): $\\text{TEY}=157.0$ MWh, $\\text{TIT}=1100^\\circ\\text{C} \\implies \\text{CO}=1.00$ mg/m³.\n• Part-Load (5,443 hrs): $\\text{TEY}=111.8$ MWh, $\\text{TIT}=1056^\\circ\\text{C} \\implies \\text{CO}=4.79$ mg/m³ (4.8x higher!).\n• Baseload (11,861 hrs): $\\text{TEY}=133.9$ MWh, $\\text{TIT}=1089^\\circ\\text{C} \\implies \\text{CO}=1.53$ mg/m³."),
@@ -544,12 +530,85 @@ def update_presentation():
         p_d.text = desc
         p_d.font.size = Pt(10)
         p_d.font.color.rgb = TEXT_DARK
-
-    # Right: Regimes scatter image
     if os.path.exists("figures/results_kmeans_regimes_scatter.png"):
         slide10.shapes.add_picture("figures/results_kmeans_regimes_scatter.png", Inches(6.7), Inches(1.4), width=Inches(5.8))
 
+    # --- SLIDE 11: 7. Conclusions & Industrial Insights ---
+    slide11 = prs.slides.add_slide(blank_layout)
+    add_header(slide11, "7. Conclusions & Engineering Recommendations")
+
+    # 3 Conclusion Cards
+    concl_cards = [
+        ("1. Methodological Justifications", 
+         "• Multicollinearity: VIF > 250 proved that raw sensor OLS is unstable. PCR with 5 orthogonal components achieved optimal generalization (Test R² = 0.9828).\n"
+         "• Non-linear Physics: CO combustion follows non-linear thermal kinetics; degree-2 polynomial expansion resolved the inflection point.\n"
+         "• Unsupervised Regimes: K-Means (K=3) confirmed distinct thermodynamic regimes without labeled training data."),
+        
+        ("2. Operational Emission Control", 
+         "• Avoid Low Firing Regimes: Part-load operation below 1070°C firing produces 4.8x higher CO emissions.\n"
+         "• Peak Load Cleanliness: Operating at peak load (TIT ~1100°C) maximizes power yield (157 MWh) and minimizes CO (1.0 mg/m³).\n"
+         "• Ambient Weather Compensation: Ambient temperature penalizes turbine yield (-0.58 correlation), justifying inlet air chilling systems during summer."),
+        
+        ("3. Digital Twin & Deployment", 
+         "• Real-Time Monitoring: The lightweight 5-component PCR model can run in real-time on edge turbine PLCs for anomaly detection.\n"
+         "• Sensor Redundancy: High collinearity allows synthetic sensor estimation if a pressure transducer fails in operation.\n"
+         "• Regulatory Compliance: Predictive emission models enable preemptive flue gas compliance adjustments.")
+    ]
+
+    for i, (title, desc) in enumerate(concl_cards):
+        left = Inches(0.8 + i * 4.0)
+        card_c = slide11.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, Inches(1.5), Inches(3.7), Inches(5.5))
+        card_c.fill.solid()
+        card_c.fill.fore_color.rgb = LIGHT_BG
+        card_c.line.color.rgb = BORDER_COLOR
+        tf_c = card_c.text_frame
+        tf_c.word_wrap = True
+        tf_c.margin_left = Inches(0.25)
+        tf_c.margin_top = Inches(0.2)
+        
+        p = tf_c.paragraphs[0]
+        p.text = title
+        p.font.size = Pt(14)
+        p.font.bold = True
+        p.font.color.rgb = DARK_BLUE
+        
+        p_desc = tf_c.add_paragraph()
+        p_desc.text = f"\n{desc}"
+        p_desc.font.size = Pt(10.5)
+        p_desc.font.color.rgb = TEXT_DARK
+
+    # --- SLIDE 12: Project Summary & Q&A ---
+    slide12 = prs.slides.add_slide(blank_layout)
+    bg12 = slide12.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(7.5))
+    bg12.fill.solid()
+    bg12.fill.fore_color.rgb = DARK_BLUE
+    bg12.line.color.rgb = DARK_BLUE
+
+    tbox12 = slide12.shapes.add_textbox(Inches(1.0), Inches(1.8), Inches(11.333), Inches(4.0))
+    tf12 = tbox12.text_frame
+    tf12.word_wrap = True
+    
+    p = tf12.paragraphs[0]
+    p.text = "Thank You!"
+    p.font.size = Pt(40)
+    p.font.bold = True
+    p.font.color.rgb = WHITE
+
+    p2 = tf12.add_paragraph()
+    p2.text = "Questions & Technical Discussion\n"
+    p2.font.size = Pt(22)
+    p2.font.color.rgb = RGBColor(180, 205, 235)
+
+    p3 = tf12.add_paragraph()
+    p3.text = (
+        "• Supplementary Material: Full Python Jupyter Notebook (gas_turbine_analysis.ipynb)\n"
+        "• Dataset: 36,733 hourly records across 2011–2015 (Turkey Gas Turbine)\n"
+        "• All methods strictly conform to the Data Analytics course syllabus."
+    )
+    p3.font.size = Pt(13)
+    p3.font.color.rgb = RGBColor(210, 225, 240)
+
     prs.save("presentation.pptx")
-    print("presentation.pptx updated with Slide 8, 9, 10 (Points 5 and 6).")
+    print("presentation.pptx updated with complete 12 slides (Points 1 to 7).")
 
 update_presentation()

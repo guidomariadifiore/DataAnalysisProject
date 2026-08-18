@@ -71,12 +71,6 @@
 | **$\text{CO}$: Polynomial (Deg. 2)** | **0.6439** | **0.4546** | **1.62 mg/m³** | **1.14 mg/m³** |
 | **$\text{NO}_x$: Multivariate OLS** | 0.4536 | -1.0928* | 15.30 mg/m³ | 13.85 mg/m³ |
 
-### Key Takeaways
-1. **PCR eliminates Multicollinearity:** PCR achieves $R^2_{\text{test}} = 0.9828$ with an RMSE of 1.96 MWh (a **41.4% error reduction** over full OLS).
-2. **Ambient Features Insufficient Alone:** Ambient inputs cannot predict dispatch yield without internal turbine pressure/temperature.
-3. **Non-linear Combustion Physics:** Quadratic polynomial terms boost $\text{CO}$ explanation to $64.4\%$ in training.
-4. **Plant Domain Shift (*):** Negative test $R^2$ for $\text{NO}_x$ captures physical burner modifications during 2014–2015.
-
 ---
 
 ## Slide 9: 6. Detailed Results: Energy Yield (TEY) & PCR Diagnostics
@@ -92,3 +86,27 @@
   * **Peak Load (4,887 hrs):** $\text{TEY}=157.0$ MWh, $\text{TIT}=1100^\circ\text{C} \implies \text{CO}=1.00$ mg/m³ (cleanest combustion).
   * **Part-Load (5,443 hrs):** $\text{TEY}=111.8$ MWh, $\text{TIT}=1056^\circ\text{C} \implies \text{CO}=4.79$ mg/m³ (**4.8x higher CO!**).
   * **Baseload (11,861 hrs):** $\text{TEY}=133.9$ MWh, $\text{TIT}=1089^\circ\text{C} \implies \text{CO}=1.53$ mg/m³.
+
+---
+
+## Slide 11: 7. Conclusions & Engineering Recommendations
+### 1. Methodological Justifications
+* **Multicollinearity Solution:** VIF diagnostics identified severe predictor inflation ($\text{VIF} > 250$). PCR on 5 orthogonal components reduced test error by $41.4\%$ ($R^2_{\text{test}} = 0.9828$).
+* **Non-linear Kinetics:** $\text{CO}$ follows non-linear thermal oxidation; degree-2 polynomial expansion successfully captured the inflection curve.
+* **Unsupervised Regimes:** K-Means clustering ($K=3$) partitioned turbine operations into distinct thermodynamic states.
+
+### 2. Operational Emission Control
+* **Minimize Low-Load Hours:** Firing below $1070^\circ\text{C}$ leads to $4.8\times$ higher $\text{CO}$ emissions ($4.79\text{ mg/m}^3$).
+* **Peak Load Operating Point:** Firing at $\text{TIT} \approx 1100^\circ\text{C}$ maximizes power yield ($157.0\text{ MWh}$) and achieves complete oxidation ($\text{CO} \approx 1.0\text{ mg/m}^3$).
+* **Ambient Chilling:** High ambient temperatures penalize power yield ($r = -0.58$), justifying inlet air chilling during summer.
+
+### 3. Digital Twin & Deployment
+* **Edge Deployment:** The 5-component PCR model is lightweight, closed-form, and suited for real-time turbine PLC deployment.
+* **Virtual Sensor Backup:** High correlation allows synthetic pressure estimation if physical sensors fail.
+
+---
+
+## Slide 12: Project Summary & Technical Q&A
+* **Complete Supplementary Code:** [gas_turbine_analysis.ipynb](file:///C:/Users/lampa/Desktop/DataAnalysisProject/gas_turbine_analysis.ipynb)
+* **Dataset:** 36,733 hourly records across 2011–2015 (Turkey Gas Turbine)
+* **Adherence:** Strictly compliant with Data Analytics (and Data Driven Decision) course guidelines.
