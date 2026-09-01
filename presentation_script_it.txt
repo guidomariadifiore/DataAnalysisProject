@@ -1,0 +1,346 @@
+========================================================================================
+DATA ANALYTICS & PREDICTIVE MODELING: EMISSIONI E RESA ENERGETICA NELLE TURBINE A GAS
+SCALETTA COMPLETA DELLA PRESENTAZIONE ORALE E GUIDA METODOLOGICA (DURATA: 15 MINUTI)
+Corso: Data Analytics (and Data Driven Decision) — Università degli Studi dell'Aquila (DISIM)
+Docente: Prof. Andrea Manno
+Dataset: Gas Turbine CO and NOx Emission Data Set (2011–2015)
+========================================================================================
+
+PANORAMICA DELLA TEMPISTICA STIMATA (Totale: ~15:00 Minuti | ~2.400 Parole | Ritmo: ~160 parole/min)
+----------------------------------------------------------------------------------------
+Slide 1:  Slide del Titolo e Introduzione al Progetto          [00:00 - 01:00] (1,0 min)
+Slide 2:  Tabella di Marcia (I 7 Passaggi delle Linee Guida)   [01:00 - 02:00] (1,0 min)
+Slide 3:  1. Descrizione del Dataset e Ruoli dei Sensori       [02:00 - 03:30] (1,5 min)
+Slide 4:  2. Pulizia dei Dati, Validazione e Scaling           [03:30 - 05:15] (1,75 min)
+Slide 5:  3. Analisi Esplorativa (EDA): Size, Spread e Corr.   [05:15 - 07:00] (1,75 min)
+Slide 6:  3. Analisi Esplorativa: PCA e Biplot 2D              [07:00 - 08:30] (1,5 min)
+Slide 7:  4. Analisi Principale: Obiettivi e Metodologia       [08:30 - 10:15] (1,75 min)
+Slide 8:  5. Anteprima e Sintesi di Alto Livello dei Risultati [10:15 - 11:45] (1,5 min)
+Slide 9:  6. Risultati Dettagliati: Resa (TEY) e PCR           [11:45 - 13:00] (1,25 min)
+Slide 10: 6. Risultati Dettagliati: Emissioni e Regimi (K-Means)[13:00 - 14:15] (1,25 min)
+Slide 11: 7. Conclusioni e Raccomandazioni Ingegneristiche     [14:15 - 15:00] (0,75 min)
+Slide 12: Riepilogo del Progetto e Discussione Tecnica (Q&A)   [15:00 - 15:30] (0,5 min)
+========================================================================================
+
+
+========================================================================================
+SLIDE 1: SLIDE DEL TITOLO E INTRODUZIONE AL PROGETTO
+Tempo Stimato: 00:00 - 01:00 (1 minuto)
+========================================================================================
+[AZIONE DEL RELATORE: Saluta la commissione d'esame, presenta il gruppo di lavoro e introduce l'argomento del progetto.]
+
+"Buongiorno, Professor Manno e membri della commissione. Oggi presentiamo il nostro progetto di Data Analytics intitolato: 'Data Analytics e Modellazione Predittiva: Emissioni di Gas Combusti e Resa Energetica nelle Turbine a Gas'.
+
+Nella moderna generazione di energia, le turbine a gas rivestono un ruolo strategico fondamentale per garantire la stabilità della rete elettrica. Tuttavia, i gestori degli impianti affrontano costantemente una doppia sfida critica: massimizzare la produzione netta di energia elettrica e, contemporaneamente, rispettare i rigidi vincoli normativi ambientali sulle emissioni inquinanti nei fumi di scarico, in particolare Monossido di Carbonio (CO) e Ossidi di Azoto (NOx).
+
+Il nostro studio si basa su un vasto dataset industriale composto da 36.733 osservazioni orarie aggregate di 11 sensori, raccolte nell'arco di cinque anni consecutivi, dal 2011 al 2015, presso una centrale a ciclo combinato situata nella regione nord-occidentale della Turchia.
+
+Nel corso del lavoro abbiamo applicato rigorosamente gli strumenti statistici, gli algoritmi di apprendimento non supervisionato, i modelli di regressione e le tecniche diagnostiche presentate durante il corso, con l'obiettivo di comprendere il comportamento termodinamico della turbina, risolvere problemi di grave multicollinearità, modellare cinetiche di combustione non lineari e identificare i regimi operativi ottimali."
+
+----------------------------------------------------------------------------------------
+[GIUSTIFICAZIONE METODOLOGICA DELLE SCELTE]:
+* Perché questo dataset? Rappresenta un problema industriale multi-target con forti accoppiamenti fisici, forte multicollinearità e non-linearità reali, costituendo il banco di prova ideale per applicare l'intero programma teorico del corso.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 2: TABELLA DI MARCIA (I 7 PASSAGGI DELLE LINEE GUIDA)
+Tempo Stimato: 01:00 - 02:00 (1 minuto)
+========================================================================================
+[AZIONE DEL RELATORE: Illustra la struttura sequenziale in 7 punti richiesta dalle linee guida ufficiali del corso.]
+
+"Per garantire la massima trasparenza, rigore scientifico e aderenza alle linee guida del progetto, la nostra presentazione e il notebook Jupyter complementare sono articolati secondo una precisa struttura sequenziale in 7 punti:
+
+1. Descrizione del dataset: profilo dell'impianto, significato fisico degli 11 sensori e protocollo di partizione temporale.
+2. Pulizia dei dati e validazione: verifica dell'integrità dei dati, controlli di plausibilità fisica, ispezione degli outlier tramite sigma-clipping e standardizzazione senza data leakage.
+3. Analisi esplorativa dei dati (EDA): sintesi delle distribuzioni univariate in 'Size' (posizione) e 'Spread' (variabilità), analisi delle correlazioni lineari di Pearson e riduzione della dimensionalità non supervisionata tramite PCA.
+4. Analisi principale, obiettivi e metodi: definizione dei tre obiettivi analitici, diagnosi della multicollinearità tramite il Variance Inflation Factor (VIF), formulazione della Principal Component Regression (PCR), espansione polinomiale delle feature e clustering K-Means.
+5. Anteprima e sintesi di alto livello dei risultati: confronto complessivo delle prestazioni di tutti i modelli rispetto a baseline banali.
+6. Risultati dettagliati e diagnostica: analisi approfondita dei residui, significatività statistica dei coefficienti e profilazione termodinamica dei regimi operativi.
+7. Conclusioni e raccomandazioni industriali: traduzione delle evidenze quantitative in strategie operative per l'abbattimento delle emissioni e il dispacciamento energetico.
+
+Tutto il codice, le derivazioni matematiche e i commenti dettagliati sono interamente contenuti ed eseguibili nel nostro notebook Jupyter, `gas_turbine_analysis.ipynb`."
+
+----------------------------------------------------------------------------------------
+[GIUSTIFICAZIONE METODOLOGICA DELLE SCELTE]:
+* Perché questa struttura? Rispetta alla lettera i 7 punti di `project_work_guidelines.pdf` ed è calibrata sui 15 minuti di esposizione previsti (12 slide <= 15 slide massime).
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 3: 1. DESCRIZIONE DEL DATASET E RUOLI DEI SENSORI (FASE 1)
+Tempo Stimato: 02:00 - 03:30 (1,5 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Descrive le caratteristiche del dataset, la categorizzazione delle 11 variabili e il partizionamento temporale.]
+
+"Iniziamo con il Punto 1: Descrizione del Dataset.
+
+Il dataset comprende 36.733 misurazioni orarie continue relative a 11 sensori. I file sorgente sono organizzati su base annuale dal 2011 al 2015. Sebbene i singoli record non riportino una data esatta, le osservazioni all'interno di ciascun file sono già ordinate cronologicamente.
+
+Dal punto di vista ingegneristico, abbiamo suddiviso le 11 variabili in quattro categorie:
+- In primo luogo, le Variabili Ambientali: Temperatura Ambiente (AT in °C), Pressione Atmosferica (AP in mbar) e Umidità Relativa (AH in %). Rappresentano le condizioni al contorno che gli operatori dell'impianto non possono controllare direttamente.
+- In secondo luogo, i Parametri Termodinamici Interni: Differenza di Pressione del Filtro dell'Aria (AFDP), Pressione allo Scarico (GTEP), Temperatura all'Ingresso della Turbina (TIT), Temperatura a Valle della Turbina (TAT) e Pressione di Scarico del Compressore (CDP).
+- In terzo luogo, la Resa Energetica: Resa Energetica della Turbina (TEY in MWh), che rappresenta la potenza elettrica oraria netta generata.
+- In quarto luogo, le Emissioni nei Fumi: Monossido di Carbonio (CO in mg/m³) e Ossidi di Azoto (NOx in mg/m³).
+
+Fondamentalmente, per simulare un reale contesto industriale di previsione, abbiamo adottato una partizione cronologica rigorosa:
+- Il set di Addestramento e Validazione comprende i primi tre anni (dal 2011 al 2013), con 22.191 osservazioni (il 60,4% del dataset pulito).
+- Il set di Test indipendente comprende gli ultimi due anni (dal 2014 al 2015), con 14.535 osservazioni (il 39,6%), riservato esclusivamente alla valutazione delle capacità di generalizzazione fuori campione."
+
+----------------------------------------------------------------------------------------
+[PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
+1. Perché una partizione cronologica Train/Test anziché una suddivisione casuale (Random Shuffling / K-Fold)?
+   * Nei dati di telemetria e serie temporali, il mescolamento casuale introduce un gravissimo fenomeno di data leakage dovuto all'autocorrelazione temporale (ore adiacenti sono quasi identiche). Testare su anni futuri (2014–2015) valuta l'effettiva capacità di forecasting e generalizzazione.
+2. Perché separare i Predittori (8 feature) dai Target (TEY, CO, NOx) fin dall'inizio?
+   * In molte analisi errate, le variabili target vengono incluse inavvertitamente nella standardizzazione e nella PCA dei predittori. Isolare gli 8 predittori dai 3 target garantisce l'assenza totale di target leakage.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 4: 2. PULIZIA DEI DATI, VALIDAZIONE E PREPROCESSING (FASE 1)
+Tempo Stimato: 03:30 - 05:15 (1,75 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Spiega la pulizia, la rimozione dei duplicati, il metodo del sigma-clipping e la standardizzazione.]
+
+"Passiamo al Punto 2: Pulizia dei Dati, Validazione della Qualità e Preprocessing.
+
+Come prima operazione, abbiamo verificato la completezza del dataset: non vi è alcun valore mancante (zero valori nulli). Abbiamo analizzato i duplicati e identificato 7 record con profili di sensori identici, che sono stati rimossi preservando la prima occorrenza, ottenendo un dataset pulito di 36.726 istanze. Abbiamo inoltre implementato controlli di plausibilità fisica via codice: verificando che tutte le pressioni siano strettamente positive, che le temperature rientrino nei limiti del ciclo termodinamico di Brayton e che le emissioni e la resa energetica siano non negative.
+
+In secondo luogo, abbiamo applicato la tecnica di ispezione degli outlier basata sul sigma-clipping illustrata nella Lezione 4 e nell'Esercizio 4.2. Come evidenziato a lezione, la deviazione standard campionaria è estremamente sensibile ai valori anomali estremi. Abbiamo pertanto utilizzato lo Scarto Interquartile (IQR) per calcolare una stima robusta della dispersione:
+   sigma_hat = IQR / 1,35 = (Q3 - Q1) / 1,35
+Centrando l'intervallo attorno alla Mediana campionaria (Q2), abbiamo definito la regione di confidenza [Mediana - 5*sigma_hat, Mediana + 5*sigma_hat].
+
+Per tutte le variabili ambientali e termodinamiche, esattamente lo 0,00% dei punti si trova oltre i limiti a 5 sigma, a riprova dell'eccellente affidabilità della sensoristica. Per il CO, il 2,72% delle osservazioni supera il limite superiore. Tuttavia, abbiamo scelto deliberatamente di NON eliminare né alterare questi valori. In ingegneria della combustione, i picchi di CO corrispondono a reali transitori fisici di combustione incompleta (come avviamenti o carichi bassi), e non a guasti del sensore. Rimuoverli significherebbe distorcere la realtà fisica del fenomeno.
+
+Infine, abbiamo eseguito la standardizzazione Z-score: z = (x - mu_train) / sigma_train. È fondamentale sottolineare che la media e la deviazione standard sono state calcolate ESCLUSIVAMENTE sul set di addestramento (2011–2013) e poi applicate sia al training che al test set, azzerando qualsiasi rischio di data leakage."
+
+----------------------------------------------------------------------------------------
+[PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
+1. Perché IQR / 1,35 e Mediana invece della classica Media e 3*Sigma?
+   * Nelle distribuzioni asimmetriche, i valori estremi spostano la media campionaria e gonfiano la deviazione standard, distorcendo le soglie. IQR e Mediana sono statistiche d'ordine ad elevato punto di rottura (breakdown point) e forniscono una stima non inquinata della dispersione.
+2. Perché ispezionare gli outlier invece di cancellarli dal dataset?
+   * Cancellare ciecamente i punti oltre i 5 sigma eliminerebbe proprio il fenomeno che vogliamo modellare: i picchi di combustione incompleta in cui il CO aumenta improvvisamente.
+3. Perché calcolare i parametri di standardizzazione solo sul Training Set?
+   * Calcolare media e varianza sull'intero periodo 2011–2015 prima della divisione incorporerebbe informazioni degli anni di test nel modello di addestramento, alterando i risultati.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 5: 3. ANALISI ESPLORATIVA (EDA): SIZE, SPREAD E CORRELAZIONE (FASE 2)
+Tempo Stimato: 05:15 - 07:00 (1,75 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Espone la definizione del corso di EDA, le metriche di Size e Spread e le correlazioni di Pearson.]
+
+"Passiamo ora al Punto 3: Analisi Esplorativa dei Dati (EDA).
+
+Come definito nelle Slide 3, 10 e 18 del materiale didattico, una distribuzione statistica descrive come una variabile si distribuisce in una popolazione, e la statistica è fondamentalmente sintesi. Noi sintetizziamo le distribuzioni misurando due proprietà essenziali: Size (il centro di posizione) e Spread (la variabilità o dispersione).
+
+Nella nostra sintesi univariata condotta sul training set:
+- Per la Size, abbiamo calcolato il centro L2 (Media), il centro L1 (Mediana) e il centro L0 (Moda). Per il Monossido di Carbonio (CO), la Media pari a 2,21 mg/m³ è nettamente superiore alla Mediana di 1,52 mg/m³ e alla Moda di 1,24 mg/m³, dimostrando matematicamente una forte asimmetria positiva a destra.
+- Per lo Spread, abbiamo calcolato Varianza (sigma^2), Deviazione Standard (sigma), Scarto Interquartile (IQR) e il Coefficiente di Concentrazione di Gini (G) introdotto nell'Esercizio 1.1. Il CO mostra un elevato indice di Gini pari a 0,442, dimostrando che la massa inquinante è fortemente concentrata in eventi ed episodi di picco.
+
+Esaminando le associazioni bivariate, la matrice di correlazione di Pearson (r_XY) mostrata a destra evidenzia tre aspetti termodinamici cruciali:
+1. Accoppiamento di Lavoro: la Pressione di Scarico del Compressore (CDP) e la Pressione allo Scarico (GTEP) mostrano una correlazione positiva quasi perfetta con la Resa Energetica (TEY), rispettivamente con r = +0,99 e r = +0,98. Pur riflettendo il ciclo di lavoro della turbina, questo ci avvisa della presenza di una severa multicollinearità tra i predittori.
+2. Penalizzazione della Temperatura Ambiente: la Temperatura Ambiente (AT) ha una forte correlazione negativa con la TEY (r = -0,58). La spiegazione risiede nella densità dell'aria: all'aumentare della temperatura atmosferica, la densità dell'aria aspirata diminuisce, riducendo la portata massica nel compressore e diminuendo la resa energetica netta.
+3. Trade-off di Combustione: il CO e gli NOx mostrano una correlazione negativa (r = -0,37). Ciò riflette la cinetica chimica di combustione: temperature di fiamma elevate favoriscono l'ossidazione completa (abbattendo il CO), ma innescano la formazione termica di NOx attraverso il meccanismo di Zeldovich."
+
+----------------------------------------------------------------------------------------
+[PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
+1. Perché includere l'Indice di Gini G e la Moda nell'EDA?
+   * Media e varianza non sono sufficienti per descrivere asimmetrie e disuguaglianze. L'indice di Gini (dall'Esercizio 1.1) quantifica matematicamente quanto i picchi di emissione siano concentrati rispetto a variabili termodinamiche continue come le pressioni.
+2. Perché calcolare dinamicamente i coefficienti di correlazione nei titoli dei grafici?
+   * Scrivere a mano i valori di correlazione nei grafici comporta rischi di incongruenza. Calcolarli dinamicamente dal dataframe attivo garantisce la piena riproducibilità scientifica.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 6: 3. ANALISI ESPLORATIVA: PCA E BIPLOT 2D (FASE 2)
+Tempo Stimato: 07:00 - 08:30 (1,5 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Illustra la PCA come tecnica esplorativa non supervisionata, lo Scree Plot e il Biplot 2D.]
+
+"Proseguendo nel Punto 3, abbiamo implementato l'Analisi delle Componenti Principali (PCA) come tecnica esplorativa non supervisionata, in accordo con le Slide 70 e 75 del corso.
+
+Matematicamente, la PCA consiste nella scomposizione spettrale agli autovalori della matrice di covarianza delle variabili standardizzate: C * v_i = lambda_i * v_i. La Proporzione di Varianza Spiegata da ciascuna componente è calcolata come PVE_i = lambda_i / sum(lambda_j).
+
+Analizzando i risultati dello Scree Plot:
+- La prima componente principale (PC1) cattura da sola il 48,28% della varianza totale del sistema, caricando fortemente sulle grandezze di potenza della turbina (CDP, TEY, GTEP e TIT).
+- La seconda componente (PC2) spiega il 20,48%, descrivendo le variazioni termiche ambientali e il trade-off inverso tra CO e NOx.
+- Cumulativamente, le prime 2 componenti spiegano il 68,76% della varianza complessiva, mentre con 5 componenti si raggiunge il 92,02%, in corrispondenza del 'gomito' dello Scree Plot.
+
+A destra presentiamo il Biplot 2D, proiettando le 22.191 osservazioni di addestramento sul sottospazio PC1-PC2 insieme ai vettori dei coefficienti di carico (autovettori scalati per leggibilità grafica).
+Il biplot visualizza chiaramente i raggruppamenti fisici: i vettori di CDP, GTEP, TIT e TEY puntano quasi nella medesima direzione lungo PC1, evidenziando visivamente la loro stretta collinearità, mentre i vettori di CO e NOx puntano in quadranti opposti, confermando l'antagonismo chimico di formazione.
+
+La conclusione industriale di questo passaggio esplorativo è che gli 11 sensori fisici giacciono su una varietà a bassa dimensionalità governata dal meteo e dal carico di dispacciamento."
+
+----------------------------------------------------------------------------------------
+[PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
+1. Perché applicare la PCA nell'EDA a tutte le 11 variabili?
+   * Nella fase esplorativa, la PCA viene impiegata in modo non supervisionato per scoprire la struttura geometrica naturale dell'intero impianto. Successivamente, nella regressione supervisionata (PCR), la PCA sarà ristretta rigorosamente ai soli 8 predittori.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 7: 4. ANALISI PRINCIPALE: OBIETTIVI E METODOLOGIA (FASE 3)
+Tempo Stimato: 08:30 - 10:15 (1,75 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Presenta i tre obiettivi analitici, la diagnosi VIF, la PCR, la regressione polinomiale e il clustering K-Means.]
+
+"Passiamo al Punto 4: Analisi Principale, Obiettivi e Quadro Metodologico.
+
+Abbiamo strutturato il nostro lavoro attorno a tre precisi obiettivi industriali:
+
+Obiettivo 1 — Previsione della Resa Energetica (TEY) e Risoluzione della Multicollinearità:
+Prima di stimare i modelli per la TEY, abbiamo diagnosticato la multicollinearità tra gli 8 predittori utilizzando il Variance Inflation Factor (VIF) dalla Slide 115:
+   VIF(beta_hat_j) = 1 / (1 - R^2_{x_j | x_{-j}})
+dove R^2 è ottenuto regredendo la variabile x_j su tutte le rimanenti. Un VIF superiore a 10 indica multicollinearità severa.
+Come mostrato nella nostra tabella VIF, i parametri interni della turbina presentano un'inflazione della varianza impressionante: la Pressione di Scarico del Compressore (CDP) ha un VIF di 342,82, la Temperatura all'Ingresso (TIT) di 262,12 e la Pressione allo Scarico (GTEP) di 260,47!
+Sebbene il modello ai Minimi Quadrati Ordinari (OLS) possa essere calcolato tramite beta_hat = (X^T X)^(-1) X^T y (implementato via `np.linalg.lstsq` per garantire la stabilità numerica), questa collinearità estrema rende i coefficienti OLS instabili e soggetti a varianze gonfiate.
+Per superare questo limite, abbiamo formulato la Principal Component Regression (PCR, Slide 70 e 106). Eseguendo la PCA esclusivamente sugli 8 predittori standardizzati, abbiamo selezionato 4 componenti principali ortogonali, che catturano il 90,76% della varianza totale dei predittori (Z = X_std * V_4), eliminando completamente la multicollinearità.
+
+Obiettivo 2 — Modellazione delle Emissioni di Gas Combusti (CO e NOx):
+Le emissioni di CO presentano forti impennate non lineari a carichi bassi. Per modellare tale andamento senza ricorrere a complessi modelli black-box, abbiamo applicato l'Espansione Polinomiale delle feature (Slide 116 ed Esercizio 4.1): espandendo i predittori in termini lineari e quadratici (x -> [x, x^2]), catturando la curvatura fisica ma preservando una stima convessa e lineare. Per gli NOx abbiamo invece formulato una regressione lineare multivariata.
+
+Obiettivo 3 — Scoperta dei Regimi Operativi (Clustering Non Supervisionato):
+Per classificare gli stati operativi senza etichette predefinite, abbiamo implementato il clustering K-Means (Slide 90–91) validato tramite il Coefficiente di Silhouette dalla Slide 94 e dall'Esercizio 3.1:
+   SIL_i = (b_i - a_i) / max(a_i, b_i)
+dove a_i è la distanza media intra-cluster (escludendo il punto stesso) e b_i è la distanza media minima verso gli altri cluster."
+
+----------------------------------------------------------------------------------------
+[PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
+1. Perché usare la PCR al posto del semplice OLS o della Ridge Regression?
+   * Con VIF > 300, l'OLS su feature grezze produce coefficienti instabili. La PCR proietta i predittori su una base ortogonale, eliminando la collinearità e fornendo una soglia chiara sulla varianza spiegata (90,76% di PVE con 4 PC).
+2. Perché l'espansione polinomiale invece di reti neurali o modelli black-box?
+   * I sistemi di controllo industriale richiedono modelli deterministici, interpretabili e a bassissima latenza. Un'espansione polinomiale di grado 2 modella la curvatura della combustione mantenendo una soluzione esatta in forma chiusa.
+3. Perché usare `np.linalg.lstsq` invece dell'inversione esplicita `(X^T X)^(-1)`?
+   * L'inversione diretta di matrici quasi singolari genera errori di cancellazione numerica. La decomposizione SVD alla base di `lstsq` è numericamente robusta e stabile.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 8: 5. ANTEPRIMA E SINTESI DI ALTO LIVELLO DEI RISULTATI (FASE 4)
+Tempo Stimato: 10:15 - 11:45 (1,5 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Presenta la scheda riassuntiva dei risultati, i KPI e il confronto con le baseline banali.]
+
+"Passiamo al Punto 5: Anteprima e Sintesi di Alto Livello dei Risultati.
+
+In questa slide riassumiamo le prestazioni empiriche di tutti i modelli predittivi, valutate sia sul set di Addestramento (2011–2013) sia sul Test set indipendente (2014–2015), misurate tramite il coefficiente di determinazione R^2 e l'errore quadratico medio RMSE.
+
+Evidenze Principali:
+1. Resa Energetica (TEY):
+   - L'OLS Multivariato Completo (8 feature) raggiunge un R^2 di Test pari a 0,9501 con un RMSE di 3,35 MWh (sul Train: R^2 = 0,9977, RMSE = 0,76 MWh).
+   - La Principal Component Regression (PCR su 4 PC) ottiene un R^2 di Test pari a 0,9397 con un RMSE di 3,68 MWh (sul Train: R^2 = 0,9693, RMSE = 2,81 MWh).
+   - Entrambi i modelli superano nettamente la baseline banale della media di addestramento (che sul Test set ha R^2 = 0,0000 e RMSE = 14,98 MWh), confermando un'eccellente capacità esplicativa e predittiva.
+2. Monossido di Carbonio (CO):
+   - Il Modello Polinomiale di Grado 2 raggiunge un R^2 di Addestramento di 0,6477 (RMSE = 1,36 mg/m³) e un R^2 di Test di 0,2635 (RMSE = 1,88 mg/m³), descrivendo efficacemente la non-linearità rispetto alla baseline (RMSE = 2,23 mg/m³).
+3. Ossidi di Azoto (NOx):
+   - L'OLS Multivariato ottiene un R^2 di Addestramento di 0,4536 (RMSE = 8,16 mg/m³), ma scende a un R^2 di Test negativo di -1,0928 (RMSE = 15,30 mg/m³). Come spiegheremo dettagliatamente a breve, questo risultato non è un difetto del modello, bensì l'identificazione quantitativa di una modifica strutturale dell'impianto avvenuta nel biennio 2014–2015!
+4. Regimi Operativi:
+   - L'algoritmo K-Means ha identificato 3 cluster operativi termodinamicamente distinti con un punteggio di Silhouette medio pari a 0,3023."
+
+----------------------------------------------------------------------------------------
+[PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
+1. Perché includere le Baseline della Media di Addestramento?
+   * Senza una baseline di confronto, i valori di R^2 e RMSE sono privi di scala. Dimostrare che una stima banale produce R^2 <= 0 e un errore di 15 MWh valorizza il reale guadagno informativo dei nostri modelli di regressione.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 9: 6. RISULTATI DETTAGLIATI: RESA (TEY) E PCR (FASE 4)
+Tempo Stimato: 11:45 - 13:00 (1,25 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Analizza il trade-off tra OLS e PCR, la risoluzione della multicollinearità e la diagnostica dei residui.]
+
+"Entriamo nel Punto 6: Risultati Dettagliati per la Resa Energetica (TEY) e Diagnostica dei Modelli.
+
+Un punto di discussione fondamentale riguarda il confronto tra OLS Completo e PCR:
+- L'OLS completo ottiene un R^2 di test leggermente superiore (0,9501 contro 0,9397). Tuttavia, poiché il condizionamento della matrice delle feature è critico e il VIF supera quota 340, i coefficienti stimati dall'OLS soffrono di instabilità da collinearità.
+- Al contrario, la PCR con 4 componenti principali conserva il 90,76% dell'informazione proiettando i dati su dimensioni ortogonali. Ciò garantisce stabilità numerica e robustezza fisica ai parametri stimati. In un'ottica di digital twin e monitoraggio d'impianto, la PCR offre una formulazione molto più affidabile.
+
+Esaminando la diagnostica dei residui riportata a destra:
+In accordo con le Slide 104 e 108 del corso, abbiamo analizzato i residui e_i = y_i - y_hat_i sul set di test.
+- La distribuzione dei residui della PCR è strettamente centrata sullo zero (errore medio pari a circa 0,04 MWh) con un profilo gaussiano perfettamente simmetrico.
+- Il grafico a dispersione dei residui rispetto ai valori predetti mostra una varianza costante (omoschedasticità) lungo l'intero intervallo operativo tra 100 e 180 MWh, confermando la piena validità delle ipotesi di Gauss-Markov."
+
+----------------------------------------------------------------------------------------
+[PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
+1. Perché difendere la PCR anche se l'OLS ha un R^2 di test di poco superiore?
+   * Nell'ingegneria statistica, l'accuratezza pura su un singolo set di test è solo uno dei criteri. Con VIF > 300, i coefficienti OLS possono oscillare drasticamente a fronte di minime perturbazioni nei dati. La PCR assicura stabilità parametrica e robustezza rispetto al rumore dei sensori.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 10: 6. RISULTATI DETTAGLIATI: EMISSIONI E REGIMI OPERATIVI (FASE 4)
+Tempo Stimato: 13:00 - 14:15 (1,25 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Spiega la modellazione non lineare del CO, il domain shift degli NOx e i profili dei 3 cluster K-Means.]
+
+"Proseguiamo il Punto 6 con la Modellazione delle Emissioni e i Regimi Operativi:
+
+In primo luogo, il Monossido di Carbonio (CO):
+Le curve diagnostiche confermano che le concentrazioni di CO aumentano in modo esponenziale quando la Temperatura all'Ingresso della Turbina (TIT) scende al di sotto di 1070°C. L'inclusione dei termini quadratici (TIT^2, TAT^2, CDP^2) consente al modello polinomiale di descrivere questo punto di flesso non lineare, raggiungendo un R^2 di addestramento pari a 0,6477.
+
+In secondo luogo, gli Ossidi di Azoto (NOx) e il 'Domain Shift':
+Il nostro modello OLS per gli NOx ha ottenuto un R^2 di addestramento di 0,4536, ma ha registrato un R^2 di test negativo di -1,0928 sul biennio 2014–2015.
+Lungi dall'essere un errore di calcolo, un'indagine empirica approfondita ne rivela la causa fisica: tra il 2013 e il 2014 la centrale ha subito un intervento di manutenzione e ricalibrazione dei bruciatori (Dry Low NOx), che ha abbassato le emissioni medie di NOx da 68,8 mg/m³ (2011–2013) a 58,5 mg/m³ (2014–2015). Un modello allenato sulle condizioni 2011–2013 sovrastima inevitabilmente i dati di un impianto modificato. Riportare questo risultato con trasparenza evidenzia la presenza di un domain shift industriale.
+
+In terzo luogo, la Scoperta dei Regimi Operativi (K-Means con K=3):
+Abbiamo confrontato i valori di K da 2 a 5 mediante il coefficiente di Silhouette corretto. Sebbene K=2 presenti un valore matematico leggermente superiore (0,3763 contro 0,3023), abbiamo scelto K=3 perché mappa in modo perfetto i tre stati fisici operativi della turbina:
+1. Cluster 0 — Carico di Picco (Peak Load, 4.309 ore): temperatura elevata (TIT = 1099,6°C), alta pressione (CDP = 13,8 mbar), massima potenza (158,2 MWh) e combustione pulita (CO = 1,00 mg/m³).
+2. Cluster 1 — Carico Nominale Base (Nominal Load, 7.820 ore): operatività a TIT = 1090,7°C, CDP = 12,2 mbar, resa di 134,5 MWh (CO = 1,48 mg/m³).
+3. Cluster 2 — Carico Parziale o Transitorio (Part Load, 10.062 ore): temperatura di fiamma inferiore (TIT = 1070,1°C), resa di 122,3 MWh, dove le emissioni di CO salgono a 3,30 mg/m³ — oltre 3,3 volte superiori rispetto al carico di picco!"
+
+----------------------------------------------------------------------------------------
+[PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
+1. Perché scegliere K=3 rispetto a K=2 nonostante il Silhouette leggermente più alto di K=2?
+   * Nell'ingegneria dei dati, il clustering è uno strumento esplorativo per supportare le decisioni. K=2 divide banalmente i dati in alto/basso carico, mentre K=3 isola il regime transitorio di Part-Load in cui avvengono i picchi di CO (+330%), fornendo indicazioni operative concrete.
+2. Perché un R^2 di test negativo per gli NOx ha valore scientifico?
+   * Dimostra che il modello rileva i cambiamenti strutturali di processo. Un domain shift causato da manutenzioni hardware nel 2014 non può essere previsto senza ricalibrare la baseline, dimostrando la necessità di aggiornamento continuo dei modelli industriali.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 11: 7. CONCLUSIONI E RACCOMANDAZIONI INGEGNERISTICHE (FASE 5)
+Tempo Stimato: 14:15 - 15:00 (0,75 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Riassume i contributi metodologici e formula raccomandazioni industriali operative.]
+
+"Concludiamo con il Punto 7: Conclusioni e Raccomandazioni Ingegneristiche.
+
+Possiamo riassumere i risultati del nostro lavoro in tre pilastri fondamentali:
+
+1. Giustificazioni Metodologiche:
+- La multicollinearità (VIF > 250) nei dati di centrale deve essere gestita; la PCR con 4 componenti principali (90,76% di varianza) elimina l'inflazione della varianza e assicura parametri numericamente stabili.
+- Le cinetiche chimiche non lineari del CO sono modellate efficacemente tramite un'espansione polinomiale di grado 2, senza perdere la convessità e l'interpretabilità dei minimi quadrati.
+- Il clustering K-Means classifica efficacemente lo spazio operativo in regimi di carico termodinamico interpretabili.
+
+2. Strategie di Controllo delle Emissioni:
+- Evitare il Regime di Carico Parziale: operare a temperature inferiori a 1070°C genera emissioni di CO 3,3 volte superiori. I piani di dispacciamento devono minimizzare le ore di transitorio a basso carico.
+- Punto di Lavoro Ottimale: operare a carico di picco (TIT circa 1100°C) massimizza la resa elettrica (158,2 MWh) garantendo la completa ossidazione del combustibile (CO circa 1,0 mg/m³).
+- Compensazione Termica Ambientale: la temperatura atmosferica penalizza la resa (r = -0,58), giustificando l'installazione di sistemi di raffreddamento dell'aria aspirata (chilling coils) nei mesi estivi.
+
+3. Gemello Digitale (Digital Twin) e Deployment:
+- Il modello PCR a 4 componenti è leggero e a forma chiusa, e può essere eseguito direttamente sui PLC di controllo della turbina per monitorare in tempo reale il degrado prestazionale e diagnosticare guasti ai sensori."
+
+----------------------------------------------------------------------------------------
+[PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
+* Risponde direttamente al requisito della Slide 3 delle linee guida del corso: collegare i modelli statistici a decisioni industriali reali e raccomandazioni operative.
+----------------------------------------------------------------------------------------
+
+
+========================================================================================
+SLIDE 12: RIEPILOGO DEL PROGETTO E DISCUSSIONE TECNICA (Q&A)
+Tempo Stimato: 15:00 - 15:30 (0,5 minuti)
+========================================================================================
+[AZIONE DEL RELATORE: Chiude formalmente l'esposizione e invita la commissione alla discussione e alle prove su codice.]
+
+"In conclusione, il nostro progetto fornisce una pipeline completa, rigorosa e pienamente riproducibile, sviluppata nel rispetto del programma del corso del Professor Manno.
+
+Tutti i passaggi di pulizia, le proiezioni PCA, i modelli di regressione, le analisi dei residui e gli algoritmi di clustering sono pronti per essere eseguiti e verificati nel nostro notebook Jupyter, `gas_turbine_analysis.ipynb`.
+
+Vi ringraziamo sentitamente per l'attenzione e siamo a vostra completa disposizione per le domande e la discussione tecnica."
+
+========================================================================================
+FINE DELLA SCELTA E SCALETTA DELLA PRESENTAZIONE
+========================================================================================
