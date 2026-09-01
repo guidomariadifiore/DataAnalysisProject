@@ -142,7 +142,7 @@ Nella nostra sintesi univariata condotta sul training set:
 Esaminando le associazioni bivariate, la matrice di correlazione di Pearson (r_XY) mostrata a destra evidenzia tre aspetti termodinamici cruciali:
 1. Accoppiamento di Lavoro: la Pressione di Scarico del Compressore (CDP) e la Pressione allo Scarico (GTEP) mostrano una correlazione positiva quasi perfetta con la Resa Energetica (TEY), rispettivamente con r = +0,99 e r = +0,98. Pur riflettendo il ciclo di lavoro della turbina, questo ci avvisa della presenza di una severa multicollinearità tra i predittori.
 2. Penalizzazione della Temperatura Ambiente: la Temperatura Ambiente (AT) ha una forte correlazione negativa con la TEY (r = -0,58). La spiegazione risiede nella densità dell'aria: all'aumentare della temperatura atmosferica, la densità dell'aria aspirata diminuisce, riducendo la portata massica nel compressore e diminuendo la resa energetica netta.
-3. Trade-off di Combustione: il CO e gli NOx mostrano una correlazione negativa (r = -0,37). Ciò riflette la cinetica chimica di combustione: temperature di fiamma elevate favoriscono l'ossidazione completa (abbattendo il CO), ma innescano la formazione termica di NOx attraverso il meccanismo di Zeldovich."
+3. Dinamica delle Emissioni: il CO e gli NOx mostrano una correlazione positiva moderata (r = +0,34). Sebbene nella teoria ideale della combustione a fiamma stazionaria esista un trade-off chimico, nei dati operativi reali di centrale entrambi gli inquinanti tendono ad aumentare simultaneamente durante i transitori di carico parziale e in condizioni di elevata umidità atmosferica."
 
 ----------------------------------------------------------------------------------------
 [PERCHÉ ABBIAMO FATTO QUESTE SCELTE SPECIFICHE]:
